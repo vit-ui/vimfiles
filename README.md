@@ -59,6 +59,7 @@ Text taken from shortcuts.txt.
 * `\gp`: **Toggle** Breakpoint.
 * `\gn`: **Next** line (Step Over).
 * `\gc`: **Continue** to next breakpoint.
+* `\gi`: **Step** Into function.
 * `\gt`: **Stop** Debugger.
 
 ## Syncing Changes

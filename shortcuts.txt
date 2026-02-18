@@ -31,6 +31,7 @@ K             : Open Go Documentation for word under cursor
 \gp           : Toggle Breakpoint
 \gn           : Next line (Step Over)
 \gc           : Continue to next breakpoint
+\gi           : Step INTO function
 :GoDebugPrint var : See value of 'var' in console
 
 -- SEARCHING (RIPGREP) --

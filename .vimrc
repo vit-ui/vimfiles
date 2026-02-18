@@ -82,6 +82,7 @@ nnoremap <leader>gt :GoDebugStop<CR>
 nnoremap <leader>gp :GoDebugBreakpoint<CR>
 nnoremap <leader>gn :GoDebugNext<CR>
 nnoremap <leader>gc :GoDebugContinue<CR>
+nnoremap <leader>gi :GoDebugStep<CR>
 
 set showcmd
 
