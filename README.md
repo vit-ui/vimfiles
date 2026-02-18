@@ -45,6 +45,9 @@ Located at the bottom of every window:
 * **`%`**: Vertical progress through the file.
 * **`L:C`**: Current Line and Column position.
 
+## Cursor Behavior
+The `.vimrc` includes a terminal check to ensure a **Block Cursor** in Normal Mode and a **Beam Cursor** in Insert Mode. This is compatible with Windows Terminal (WSL) and most Linux terminal emulators.
+
 ## Example Mappings
 
 Text taken from shortcuts.txt.
