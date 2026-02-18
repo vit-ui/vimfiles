@@ -1,9 +1,9 @@
 ============================================================
-           VITOR'S GO & WORKFLOW BIBLE (WSL)
+				     RELEVANT SHORTCUTS
 ============================================================
 
 -- VIM WINDOWS & NAVIGATION --
-Alt + h/j/k/l : Jump Left, Down, Up, Right (Mapped in .vimrc)
+Alt + h/j/k/l : Jump Left, Down, Up, Right
 :vsplit       : Create vertical split
 :q            : Close current split
 Ctrl + w then = : Make all splits equal size
@@ -26,11 +26,11 @@ K             : Open Go Documentation for word under cursor
 :GoAddTags    : Add JSON tags to struct fields
 
 -- GO DEBUGGING (Vim-Go + Delve) --
-\ds       : Start Debugger
-\dt       : Stop Debugger
-\bp       : Toggle Breakpoint
-\dn       : Next line (Step Over)
-\dc       : Continue to next breakpoint
+\gs           : Start Debugger
+\gt           : Stop Debugger
+\gp           : Toggle Breakpoint
+\gn           : Next line (Step Over)
+\gc           : Continue to next breakpoint
 :GoDebugPrint var : See value of 'var' in console
 
 -- SEARCHING (RIPGREP) --
@@ -53,4 +53,10 @@ git config --global user.email "your@email.com"
 -- VIM ERRORS (QUICKFIX) --
 :copen / :cclose : Open/Close Error window
 :cn / :cp        : Jump to Next/Previous error
+
+-- VIM PLUG (THE MANAGER) --
+:PlugInstall : Installs plugins listed in .vimrc
+:PlugUpdate  : Updates all plugins
+:PlugClean   : Removes plugins no longer in .vimrc
+
 ============================================================

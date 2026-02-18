@@ -67,17 +67,26 @@ set laststatus=2
 set statusline=%f\ %m\ %r%=%y\ [%p%%]\ %l:%c
 highlight StatusLine ctermbg=white ctermfg=black
 
-" \r to Run, \t to Test, \d for Definition
+" \r to Run, \t to Test
 autocmd FileType go nmap <leader>r <Plug>(go-run)
 autocmd FileType go nmap <leader>t <Plug>(go-test)
+
+" --- Navigation ---
+" \d for Definition, \b for Back
 autocmd FileType go nmap <leader>d <Plug>(go-def)
-" Pair with \d (GoDef) to jump BACK to where you were
-nnoremap \b <C-t>
+nnoremap <leader>b <C-t>
+
+" --- Go Debugger (Using \g prefix instead of \d) ---
+nnoremap <leader>gs :GoDebugStart<CR>
+nnoremap <leader>gt :GoDebugStop<CR>
+nnoremap <leader>gp :GoDebugBreakpoint<CR>
+nnoremap <leader>gn :GoDebugNext<CR>
+nnoremap <leader>gc :GoDebugContinue<CR>
 
 set showcmd
 
 " Old command: command! GoHelpMe vsplit ~/crawlergo/shortcuts.txt
-command! Shortcuts vsplit ~/go_shortcuts.txt
+command! Shortcuts vsplit ~/vimfiles/shortcuts.txt
 
 " Alternative: Using Leader (\h, \j, etc.)
 nnoremap <leader>h <C-w>h
@@ -88,10 +97,3 @@ nnoremap <leader>l <C-w>l
 "+ and - now resize the window
 nnoremap <silent> + :vertical resize +5<CR>
 nnoremap <silent> - :vertical resize -5<CR>
-
-" Debugger Shortcuts
-nnoremap \bp :GoDebugBreakpoint<CR>
-nnoremap \ds :GoDebugStart<CR>
-nnoremap \dn :GoDebugNext<CR>
-nnoremap \dc :GoDebugContinue<CR>
-nnoremap \dt :GoDebugStop<CR>

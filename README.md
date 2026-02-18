@@ -45,16 +45,18 @@ Located at the bottom of every window:
 * **`%`**: Vertical progress through the file.
 * **`L:C`**: Current Line and Column position.
 
-## ⌨️ Custom Mappings
+## Example Mappings
 
-* `:GoHelpMe`: Opens `shortcuts.txt` in a vertical split.
+Text taken from shortcuts.txt.
+
+* `:Shortcuts`: Opens `shortcuts.txt` in a vertical split.
 * `\d`: Jump **INTO** definition (Go files only).
 * `\b`: Jump **BACK** from definition (Works everywhere).
-* `\ds`: **Start** Go Debugger.
-* `\bp`: **Toggle** Breakpoint.
-* `\dn`: **Next** line (Step Over).
-* `\dc`: **Continue** to next breakpoint.
-* `\dt`: **Stop** Debugger.
+* `\gs`: **Start** Go Debugger.
+* `\gp`: **Toggle** Breakpoint.
+* `\gn`: **Next** line (Step Over).
+* `\gc`: **Continue** to next breakpoint.
+* `\gt`: **Stop** Debugger.
 
 ## Syncing Changes
 
@@ -64,17 +66,6 @@ To save updates to GitHub:
 cd ~/vimfiles
 git add .
 git commit -m "update config"
-git push
-
-```
-
----
-
-### 3. Push the Fix
-```bash
-cd ~/vimfiles
-git add README.md
-git commit -m "Fix markdown line endings"
 git push
 
 ```
