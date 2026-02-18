@@ -97,3 +97,11 @@ nnoremap <leader>l <C-w>l
 "+ and - now resize the window
 nnoremap <silent> + :vertical resize +5<CR>
 nnoremap <silent> - :vertical resize -5<CR>
+
+" Portable Cursor Shape (WSL & Linux)
+" Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
+if &term =~ 'xterm' || &term =~ 'screen' || &term =~ '256color'
+    let &t_SI = "\<Esc>[6 q" " Insert mode: steady beam
+    let &t_SR = "\<Esc>[4 q" " Replace mode: steady underline
+    let &t_EI = "\<Esc>[2 q" " Normal mode: steady block
+endif
