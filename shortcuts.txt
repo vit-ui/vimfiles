@@ -1,0 +1,56 @@
+============================================================
+           VITOR'S GO & WORKFLOW BIBLE (WSL)
+============================================================
+
+-- VIM WINDOWS & NAVIGATION --
+Alt + h/j/k/l : Jump Left, Down, Up, Right (Mapped in .vimrc)
+:vsplit       : Create vertical split
+:q            : Close current split
+Ctrl + w then = : Make all splits equal size
+:vertical resize +10 : Make window wider
+:vertical resize -10 : Make window narrower
++ / -         : Quick resize vertical splits (Mapped in .vimrc)
+
+-- EDITING & SHORTCUTS --
+gcc           : Comment/Uncomment current line (Commentary plugin)
+gc (visual)   : Comment/Uncomment selection (Commentary plugin)
+u             : Undo
+Ctrl + r      : Redo
+Tab           : Select CoC autocomplete suggestion
+
+-- GO DEVELOPMENT & NAVIGATION --
+\d            : Jump INTO Definition (GoDef)
+\b            : Jump BACK from Definition (Mapped to Ctrl+t)
+K             : Open Go Documentation for word under cursor
+:GoRename     : Rename variable project-wide
+:GoAddTags    : Add JSON tags to struct fields
+
+-- GO DEBUGGING (Vim-Go + Delve) --
+\ds       : Start Debugger
+\dt       : Stop Debugger
+\bp       : Toggle Breakpoint
+\dn       : Next line (Step Over)
+\dc       : Continue to next breakpoint
+:GoDebugPrint var : See value of 'var' in console
+
+-- SEARCHING (RIPGREP) --
+rg -l '"http"'    : List files with literal "http" import
+rg -t go "func"   : Search only inside .go files
+rg -i "text"      : Case-insensitive search
+rg --hidden "str" : Search including hidden files (like .vimrc)
+
+-- TERMINAL & FILES --
+mv old new    : Rename or move a file/directory
+cp old new    : Copy a file
+rm file       : Delete a file
+go mod tidy   : Clean up dependencies in go.mod/go.sum
+
+-- GIT OPERATIONS --
+git commit --amend --no-edit : Add fix to last commit (keep message)
+git config --global user.name "Vitor"
+git config --global user.email "your@email.com"
+
+-- VIM ERRORS (QUICKFIX) --
+:copen / :cclose : Open/Close Error window
+:cn / :cp        : Jump to Next/Previous error
+============================================================
