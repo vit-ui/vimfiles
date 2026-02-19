@@ -55,6 +55,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
    go install github.com/go-delve/delve/cmd/dlv@latest
    ```
 3. Run the [Debugging Setup](#debugging-setup-vimspector--dap):
+
     On terminal do:
     ```bash
     vim .
