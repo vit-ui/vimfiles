@@ -12,7 +12,50 @@ Plug 'tpope/vim-commentary'
 " Make braces, brackets, etc open a new empty line
 Plug 'jiangmiao/auto-pairs'
 
+Plug 'puremourning/vimspector'
+
 call plug#end()
+
+" Ensure Vimspector is available
+if empty(glob('~/.vim/plugged/vimspector'))
+  echo "Vimspector not found. Run :PlugInstall first."
+endif
+
+function! InstallDebugger(adapter)
+  if a:adapter == ''
+    echo "Usage: :InstallDebugger <adapter_name>"
+    return
+  endif
+
+  " Install adapter
+  execute 'VimspectorInstall ' . a:adapter
+
+  " Create .vimspector.json if missing
+  if !filereadable('.vimspector.json')
+    let l:config = [
+          \ '{',
+          \ '  "configurations": {',
+          \ '    "Launch": {',
+          \ '      "adapter": "' . a:adapter . '",',
+          \ '      "configuration": {',
+          \ '        "request": "launch",',
+          \ '        "program": "${workspaceRoot}",',
+          \ '        "mode": "debug"',
+          \ '      }',
+          \ '    }',
+          \ '  }',
+          \ '}'
+          \ ]
+    call writefile(l:config, '.vimspector.json')
+    echo ".vimspector.json created."
+  else
+    echo ".vimspector.json already exists."
+  endif
+
+  echo "Debugger installation complete."
+endfunction
+
+command! -nargs=1 InstallDebugger call InstallDebugger(<f-args>)
 
 " --- General Settings ---
 syntax on
@@ -77,15 +120,26 @@ autocmd FileType go nmap <leader>d <Plug>(go-def)
 nnoremap <leader>b <C-t>
 
 " --- Go Debugger (Using \g prefix instead of \d) ---
-" --- Go Debugger (The Correct vim-go Mappings) ---
-nnoremap <leader>gs :GoDebugStart .<CR>
-nnoremap <leader>gt :GoDebugStop<CR>
-nnoremap <leader>gp :GoDebugBreakpoint<CR>
+" Toggle breakpoint
+nnoremap <leader>gp :call vimspector#ToggleBreakpoint()<CR>
 
-" These are the specific mappings for moving through code:
-nmap <leader>gn <Plug>(go-debug-next)
-nmap <leader>gi <Plug>(go-debug-step)
-nmap <leader>gc <Plug>(go-debug-continue)
+" Continue / Start
+nnoremap <leader>gc :call vimspector#Continue()<CR>
+
+" Stop
+nnoremap <leader>gs :call vimspector#Stop()<CR>
+
+" Restart
+nnoremap <leader>gr :call vimspector#Restart()<CR>
+
+" Step Over
+nnoremap <leader>gn :call vimspector#StepOver()<CR>
+
+" Step Into
+nnoremap <leader>gi :call vimspector#StepInto()<CR>
+
+" Step Out
+nnoremap <leader>go :call vimspector#StepOut()<CR>
 
 set showcmd
 

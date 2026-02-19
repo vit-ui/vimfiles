@@ -25,14 +25,25 @@ K             : Open Go Documentation for word under cursor
 :GoRename     : Rename variable project-wide
 :GoAddTags    : Add JSON tags to struct fields
 
--- GO DEBUGGING (Vim-Go + Delve) --
-\gs           : Start Debugger
-\gt           : Stop Debugger
-\gp           : Toggle Breakpoint
-\gn           : Next line (Step Over)
-\gc           : Continue to next breakpoint
-\gi           : Step INTO function
-:GoDebugPrint var : See value of 'var' in console
+-- DEBUGGING (DAP) --
+\gp			  : Toggle breakpoint
+\gc			  : Start / Continue debugging
+\gs			  : Stop debugging session
+\gr			  : Restart debugging
+\gn			  : Step over
+\gi  		  : Step into
+\go			  : Step out
+
+:InstallDebugger <adapter_name>
+
+Examples:
+:InstallDebugger delve
+:InstallDebugger debugpy
+:InstallDebugger CodeLLDB
+
+Requires:
+- Vimspector plugin
+- Language-specific debugger binary installed
 
 -- SEARCHING (RIPGREP) --
 rg -l '"http"'    : List files with literal "http" import
@@ -50,6 +61,14 @@ go mod tidy   : Clean up dependencies in go.mod/go.sum
 git commit --amend --no-edit : Add fix to last commit (keep message)
 git config --global user.name "Vitor"
 git config --global user.email "your@email.com"
+
+-- GITHUB CLI (GH) --
+gh auth login          : Authenticate with your GitHub account
+gh repo clone [repo]   : Clone a repository locally
+gh pr create           : Create a new pull request from current branch
+gh pr list             : List open pull requests in current repo
+gh issue list          : List open issues in the repository
+gh browse              : Open the current repository in your browser
 
 -- VIM ERRORS (QUICKFIX) --
 :copen / :cclose : Open/Close Error window
