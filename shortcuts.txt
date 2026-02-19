@@ -33,13 +33,9 @@ K             : Open Go Documentation for word under cursor
 \gn			  : Step over
 \gi  		  : Step into
 \go			  : Step out
+\gp			  : Reset Debugger
 
 :InstallDebugger <adapter_name>
-
-Examples:
-:InstallDebugger delve
-:InstallDebugger debugpy
-:InstallDebugger CodeLLDB
 
 Requires:
 - Vimspector plugin
