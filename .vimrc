@@ -77,12 +77,15 @@ autocmd FileType go nmap <leader>d <Plug>(go-def)
 nnoremap <leader>b <C-t>
 
 " --- Go Debugger (Using \g prefix instead of \d) ---
-nnoremap <leader>gs :GoDebugStart<CR>
+" --- Go Debugger (The Correct vim-go Mappings) ---
+nnoremap <leader>gs :GoDebugStart .<CR>
 nnoremap <leader>gt :GoDebugStop<CR>
 nnoremap <leader>gp :GoDebugBreakpoint<CR>
-nnoremap <leader>gn :GoDebugNext<CR>
-nnoremap <leader>gc :GoDebugContinue<CR>
-nnoremap <leader>gi :GoDebugStep<CR>
+
+" These are the specific mappings for moving through code:
+nmap <leader>gn <Plug>(go-debug-next)
+nmap <leader>gi <Plug>(go-debug-step)
+nmap <leader>gc <Plug>(go-debug-continue)
 
 set showcmd
 
