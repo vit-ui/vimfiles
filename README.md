@@ -2,74 +2,207 @@
 
 My personal configuration for Go development on WSL/Linux.
 
+---
+
 ## Repository Structure
-- `.vimrc`: Main configuration (CoC, vim-go, Auto-pairs, Statusline).
-- `shortcuts.txt`: Reference guide for Vim, Git, and Go commands.
+
+* `.vimrc` – Vim config file
+* `shortcuts.txt` – Quick reference for Vim, Git, Go, and debugging commands
+
+---
 
 ## Setup Instructions
 
-### 1. Link the Configuration
+### 1) Link the Configuration
+
 Vim looks for `.vimrc` in your home directory. Link it from this repo:
+
 ```bash
 ln -sf ~/vimfiles/.vimrc ~/.vimrc
-
 ```
 
-### 2. Install Vim-Plug (Plugin Manager)
-
-You must install the manager first so Vim can understand the `Plug` commands in your `.vimrc`:
+### 2) Install vim-plug (Plugin Manager)
 
 ```bash
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    [https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim](https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim)
-
+  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 ```
 
-### 3. Install Plugins & Go Tools
+### 3) Install Plugins
 
-1. Open Vim and run `:PlugInstall` to download the extensions.
-2. Inside Vim, run `:GoUpdateBinaries` to install Go-specific tools.
-3. In your terminal, install the Delve debugger:
-```bash
-go install [github.com/go-delve/delve/cmd/dlv@latest](https://github.com/go-delve/delve/cmd/dlv@latest)
+1. Open Vim and run:
 
-```
+   ```
+   :PlugInstall
+   ```
 
-## Status Bar Reference
+### 4) Setup Debugger
+   
+   click [here](#debugging-setup-vimspector--dap) to see how to set up a debugger
 
-Located at the bottom of every window:
+---
 
-* **Filename**: Path to the current file.
-* **`[+]`**: Indicates unsaved changes.
-* **`[RO]`**: Read-only file.
-* **`%`**: Vertical progress through the file.
-* **`L:C`**: Current Line and Column position.
+## Go Setup
+
+1. Install Go tooling:
+
+   ```
+   :GoUpdateBinaries
+   ```
+2. Install the Delve debugger (required for Go debugging):
+
+   ```bash
+   go install github.com/go-delve/delve/cmd/dlv@latest
+   ```
+3. Run the [Debugging Setup](#debugging-setup-vimspector--dap):
+    On terminal do:
+    ```bash
+    vim .
+    ```
+    and then:
+    ```
+    :InstallDebugger delve
+    ```
+
+---
+
+## Status Line Reference
+
+* **Filename** – Current file path
+* **[+]** – Unsaved changes
+* **[RO]** – Read-only file
+* **%** – File progress
+* **L****:C** – Line and column
+
+---
 
 ## Cursor Behavior
-The `.vimrc` includes a terminal check to ensure a **Block Cursor** in Normal Mode and a **Beam Cursor** in Insert Mode. This is compatible with Windows Terminal (WSL) and most Linux terminal emulators.
 
-## Example Mappings
+* Block cursor in Normal mode
+* Beam cursor in Insert mode
+* Works correctly in WSL and common Linux terminals
 
-Text taken from shortcuts.txt.
+---
 
-* `:Shortcuts`: Opens `shortcuts.txt` in a vertical split.
-* `\d`: Jump **INTO** definition (Go files only).
-* `\b`: Jump **BACK** from definition (Works everywhere).
-* `\gs`: **Start** Go Debugger.
-* `\gp`: **Toggle** Breakpoint.
-* `\gn`: **Next** line (Step Over).
-* `\gc`: **Continue** to next breakpoint.
-* `\gi`: **Step** Into function.
-* `\gt`: **Stop** Debugger.
+## Window Navigation (Works Everywhere)
+
+Use `<leader>` with the navigation keys to move between windows.
+
+This works inside:
+
+* Vimspector console
+* `:terminal`
+* Any terminal buffer
+
+---
+
+## General Shortcuts
+
+To view the basic shortcuts:
+
+```
+:Shortcuts
+```
+
+For more shortcuts read the `.vimrc` file:
+
+```bash
+cat ~/.vimrc
+```
+
+---
+
+# Debugging Setup (Vimspector + DAP)
+
+Debugging is powered by Vimspector using the Debug Adapter Protocol (DAP).
+
+---
+
+## Install Debug Adapter
+
+Custom helper command defined in `.vimrc`:
+
+```
+:InstallDebugger <adapter_name>
+```
+
+Examples:
+
+```
+:InstallDebugger delve
+:InstallDebugger debugpy
+:InstallDebugger CodeLLDB
+```
+
+What this does:
+
+* Runs `:VimspectorInstall <adapter_name>`
+* Creates a minimal `.vimspector.json` if missing
+
+It does **not** install the debugger binary itself.
+
+**Must be run on the root dir:**
+
+```bash
+vim .
+:InstallDebugger delve
+```
+
+For Go, install Delve manually:
+
+```bash
+go install github.com/go-delve/delve/cmd/dlv@latest
+```
+
+---
+
+## Minimal `.vimspector.json` Example (Go)
+
+```json
+{
+  "configurations": {
+    "Launch": {
+      "adapter": "delve",
+      "filetypes": ["go"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}",
+        "mode": "debug"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Typical Debug Flow
+
+The Key `\` is `<leader>`
+
+1. Open the project root
+2. Set breakpoint: `\gb`
+3. Start / continue: `\gc`
+4. Step over: `\gn`
+5. Stop: `\gs`
+6. Reset if needed: `\gq`
+
+---
 
 ## Syncing Changes
-
-To save updates to GitHub:
 
 ```bash
 cd ~/vimfiles
 git add .
 git commit -m "update config"
 git push
-
 ```
+
+---
+
+## Requirements
+
+* Vim
+* vim-plug
+* Language-specific debugger installed (e.g., Delve)
+

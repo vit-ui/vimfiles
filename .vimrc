@@ -121,7 +121,7 @@ nnoremap <leader>b <C-t>
 
 " --- Go Debugger (Using \g prefix instead of \d) ---
 " Toggle breakpoint
-nnoremap <leader>gp :call vimspector#ToggleBreakpoint()<CR>
+nnoremap <leader>gb :call vimspector#ToggleBreakpoint()<CR>
 
 " Continue / Start
 nnoremap <leader>gc :call vimspector#Continue()<CR>
@@ -141,16 +141,26 @@ nnoremap <leader>gi :call vimspector#StepInto()<CR>
 " Step Out
 nnoremap <leader>go :call vimspector#StepOut()<CR>
 
+" Reset
+nnoremap <leader>gq :VimspectorReset!<CR>
+
 set showcmd
 
 " Old command: command! GoHelpMe vsplit ~/crawlergo/shortcuts.txt
 command! Shortcuts vsplit ~/vimfiles/shortcuts.txt
 
 " Alternative: Using Leader (\h, \j, etc.)
+" Normal mode
 nnoremap <leader>h <C-w>h
 nnoremap <leader>j <C-w>j
 nnoremap <leader>k <C-w>k
 nnoremap <leader>l <C-w>l
+
+" Terminal mode (IMPORTANT)
+tnoremap <leader>h <C-\><C-n><C-w>h
+tnoremap <leader>j <C-\><C-n><C-w>j
+tnoremap <leader>k <C-\><C-n><C-w>k
+tnoremap <leader>l <C-\><C-n><C-w>l
 
 "+ and - now resize the window
 nnoremap <silent> + :vertical resize +5<CR>
