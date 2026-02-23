@@ -16,6 +16,7 @@ Plug 'puremourning/vimspector'
 
 call plug#end()
 
+let g:coc_global_extensions = ['coc-go', 'coc-json', 'coc-sql', 'coc-sh', 'coc-snippets']
 " Ensure Vimspector is available
 if empty(glob('~/.vim/plugged/vimspector'))
   echo "Vimspector not found. Run :PlugInstall first."
@@ -67,6 +68,8 @@ set termguicolors
 set background=dark
 colorscheme molokai
 
+autocmd FileType sql setlocal omnifunc=vim_dadbod_completion#omni
+
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
 
@@ -83,6 +86,9 @@ set noexpandtab
 set hlsearch
 set incsearch
 set backspace=indent,eol,start
+
+" Format the current buffer
+command! -nargs=0 Format :call CocActionAsync('format')
 
 " --- Go-Specific Formatting ---
 " Go uses real tabs, not spaces
@@ -116,8 +122,15 @@ autocmd FileType go nmap <leader>t <Plug>(go-test)
 
 " --- Navigation ---
 " \d for Definition, \b for Back
-autocmd FileType go nmap <leader>d <Plug>(go-def)
+" Global jump to definition using CoC
+nmap <silent> <leader>d <Plug>(coc-definition)
 nnoremap <leader>b <C-t>
+
+nnoremap <silent> K :call CocActionAsync('doHover')<CR>
+
+nmap <leader>ca <Plug>(coc-codeaction)
+
+nmap <leader>rn <Plug>(coc-rename)
 
 " --- Go Debugger (Using \g prefix instead of \d) ---
 " Toggle breakpoint
@@ -172,4 +185,16 @@ if &term =~ 'xterm' || &term =~ 'screen' || &term =~ '256color'
     let &t_SI = "\<Esc>[6 q" " Insert mode: steady beam
     let &t_SR = "\<Esc>[4 q" " Replace mode: steady underline
     let &t_EI = "\<Esc>[2 q" " Normal mode: steady block
+endif
+
+" --- Automation: Global Gitignore Setup ---
+" This runs only once if the global ignore file is missing
+if executable('git') && empty(glob('~/.gitignore_global'))
+  silent !touch ~/.gitignore_global
+  silent !echo "tags" >> ~/.gitignore_global
+  silent !echo "tags.lock" >> ~/.gitignore_global
+  silent !echo ".vimspector.json" >> ~/.gitignore_global
+  silent !git config --global core.excludesfile ~/.gitignore_global
+  redraw!
+  echo "Global .gitignore created and configured."
 endif
