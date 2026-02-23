@@ -21,6 +21,8 @@ Vim looks for `.vimrc` in your home directory. Link it from this repo:
 ln -sf ~/vimfiles/.vimrc ~/.vimrc
 ```
 
+*Note: The first time you open Vim, it will automatically create and configure a global `~/.gitignore_global` to ignore `tags` and debugger configs.*
+
 ### 2) Install vim-plug (Plugin Manager)
 
 ```bash
@@ -181,12 +183,11 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 The Key `\` is `<leader>`
 
-1. Open the project root
-2. Set breakpoint: `\gb`
-3. Start / continue: `\gc`
-4. Step over: `\gn`
-5. Stop: `\gs`
-6. Reset if needed: `\gq`
+1. Set breakpoint: `\gb`
+2. Start / continue: `\gc`
+3. Step over: `\gn`
+4. Stop: `\gs`
+5. Reset if needed: `\gq`
 
 ---
 

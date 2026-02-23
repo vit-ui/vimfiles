@@ -17,11 +17,12 @@ gc (visual)   : Comment/Uncomment selection (Commentary plugin)
 u             : Undo
 Ctrl + r      : Redo
 Tab           : Select CoC autocomplete suggestion
+K             : Open Documentation for word under cursor (LSP)
+\d            : Jump INTO Definition (Global)
+\b            : Jump BACK from Definition (Mapped to Ctrl+t)
+\rn           : Rename variable project-wide (Global)
 
 -- GO DEVELOPMENT & NAVIGATION --
-\d            : Jump INTO Definition (GoDef)
-\b            : Jump BACK from Definition (Mapped to Ctrl+t)
-K             : Open Go Documentation for word under cursor
 :GoRename     : Rename variable project-wide
 :GoAddTags    : Add JSON tags to struct fields
 
@@ -46,6 +47,7 @@ rg -l '"http"'    : List files with literal "http" import
 rg -t go "func"   : Search only inside .go files
 rg -i "text"      : Case-insensitive search
 rg --hidden "str" : Search including hidden files (like .vimrc)
+rg -t sql "text"  : Search only inside .sql files
 
 -- TERMINAL & FILES --
 mv old new    : Rename or move a file/directory
