@@ -17,6 +17,7 @@ Plug 'puremourning/vimspector'
 call plug#end()
 
 let g:coc_global_extensions = ['coc-go', 'coc-json', 'coc-sql', 'coc-sh', 'coc-snippets']
+
 " Ensure Vimspector is available
 if empty(glob('~/.vim/plugged/vimspector'))
   echo "Vimspector not found. Run :PlugInstall first."
@@ -67,8 +68,6 @@ set number
 set termguicolors
 set background=dark
 colorscheme molokai
-
-autocmd FileType sql setlocal omnifunc=vim_dadbod_completion#omni
 
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
