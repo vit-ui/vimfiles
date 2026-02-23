@@ -126,7 +126,7 @@ autocmd FileType go nmap <leader>t <Plug>(go-test)
 nmap <silent> <leader>d <Plug>(coc-definition)
 nnoremap <leader>b <C-t>
 
-nnoremap <silent> K :call CocActionAsync('doHover')<CR>
+nnoremap <leader>o :call CocActionAsync('doHover')<CR>
 
 nmap <leader>ca <Plug>(coc-codeaction)
 

@@ -16,24 +16,26 @@ gc (visual)   : Comment/Uncomment selection (Commentary plugin)
 u             : Undo
 Ctrl + r      : Redo
 Tab           : Select CoC autocomplete suggestion
-K             : Open Documentation for word under cursor (LSP)
+\o            : Open Documentation for word under cursor (LSP)
 \d            : Jump INTO Definition (Global)
 \b            : Jump BACK from Definition (Mapped to Ctrl+t)
 \rn           : Rename variable project-wide (Global)
+\ca 		  : Open CoC Code Actions (fixes/suggestions)
+:Format 	  : Manually trigger LSP formatting
 
 -- GO DEVELOPMENT & NAVIGATION --
 :GoRename     : Rename variable project-wide
 :GoAddTags    : Add JSON tags to struct fields
 
 -- DEBUGGING (DAP) --
-\gp			  : Toggle breakpoint
+\gb			  : Toggle breakpoint
 \gc			  : Start / Continue debugging
 \gs			  : Stop debugging session
 \gr			  : Restart debugging
 \gn			  : Step over
 \gi  		  : Step into
 \go			  : Step out
-\gp			  : Reset Debugger
+\gq			  : Reset Debugger
 
 :InstallDebugger <adapter_name>
 

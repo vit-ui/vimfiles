@@ -22,7 +22,6 @@ ln -sf ~/vimfiles/.vimrc ~/.vimrc
 ```
 
 *Note: The first time you open Vim, it will automatically create and configure a global `~/.gitignore_global` to ignore `tags` and debugger configs.*
-
 ### 2) Install vim-plug (Plugin Manager)
 
 ```bash
@@ -190,7 +189,11 @@ The Key `\` is `<leader>`
 - `\gq` : Hard Reset Vimspector
 ---
 
-## Syncing Changes
+# Language Support
+
+Highlighting and completion are handled with CoC extensions. To add a new language, add its extension name (e.g., `coc-pyright`) to the `g:coc_global_extensions` list in your `.vimrc` to ensure it installs automatically.
+
+# Syncing Changes
 
 ```bash
 cd ~/vimfiles
@@ -201,7 +204,7 @@ git push
 
 ---
 
-## Requirements
+# Requirements
 
 * Vim
 * vim-plug
