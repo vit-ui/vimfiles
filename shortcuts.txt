@@ -3,13 +3,12 @@
 ============================================================
 
 -- VIM WINDOWS & NAVIGATION --
-Alt + h/j/k/l : Jump Left, Down, Up, Right
+\h \j \k \l   : Jump Left, Down, Up, Right
 :vsplit       : Create vertical split
 :q            : Close current split
 Ctrl + w then = : Make all splits equal size
-:vertical resize +10 : Make window wider
-:vertical resize -10 : Make window narrower
-+ / -         : Quick resize vertical splits (Mapped in .vimrc)
++ / -         : Resize window width (+5 / -5)
+:Shortcuts    : Open this help file in a vertical split
 
 -- EDITING & SHORTCUTS --
 gcc           : Comment/Uncomment current line (Commentary plugin)

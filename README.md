@@ -183,12 +183,11 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 The Key `\` is `<leader>`
 
-1. Set breakpoint: `\gb`
-2. Start / continue: `\gc`
-3. Step over: `\gn`
-4. Stop: `\gs`
-5. Reset if needed: `\gq`
-
+- `\gb` : Toggle breakpoint
+- `\gc` : Launch / Continue
+- `\gn` : Step Over
+- `\gs` : Stop
+- `\gq` : Hard Reset Vimspector
 ---
 
 ## Syncing Changes
