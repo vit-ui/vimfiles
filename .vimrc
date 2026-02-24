@@ -14,9 +14,19 @@ Plug 'jiangmiao/auto-pairs'
 
 Plug 'puremourning/vimspector'
 
+Plug 'ludovicchabant/vim-gutentags'
+
 call plug#end()
 
 let g:coc_global_extensions = ['coc-go', 'coc-json', 'coc-sql', 'coc-sh', 'coc-snippets']
+" --- Automation: CoC Tag Fallback (Option 3) ---
+" This sets semantic completion as priority and tags as low-priority fallback
+let g:coc_user_config = {
+  \ "suggest.languageSourcePriority": 99,
+  \ "coc.source.tag.priority": 1,
+  \ "coc.source.tag.shortcut": "TAG",
+  \ "suggest.lowPrioritySourceLimit": 5
+  \ }
 
 " Ensure Vimspector is available
 if empty(glob('~/.vim/plugged/vimspector'))

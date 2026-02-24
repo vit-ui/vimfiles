@@ -13,6 +13,13 @@ My personal configuration for Go development on WSL/Linux.
 
 ## Setup Instructions
 
+### 0) Install System Dependencies
+Universal Ctags is required for the Gutentags automation:
+
+```bash
+sudo apt update && sudo apt install universal-ctags
+```
+
 ### 1) Link the Configuration
 
 Vim looks for `.vimrc` in your home directory. Link it from this repo:
