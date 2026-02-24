@@ -23,6 +23,9 @@ Tab           : Select CoC autocomplete suggestion
 \ca 		  : Open CoC Code Actions (fixes/suggestions)
 :Format 	  : Manually trigger LSP formatting
 
+:tag <word>   : Jumps to the first definition.
+:tselect <word>: Shows a list of all matching tags to choose from.
+
 -- GO DEVELOPMENT & NAVIGATION --
 :GoRename     : Rename variable project-wide
 :GoAddTags    : Add JSON tags to struct fields
