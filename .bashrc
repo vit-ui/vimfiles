@@ -137,3 +137,6 @@ up() {
     echo "Usage: up [number]"
   fi
 }
+
+tabs -4
+PROMPT_COMMAND='tabs -4 >/dev/null 2>&1'

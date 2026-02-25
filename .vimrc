@@ -1,3 +1,20 @@
+" ==========================================================
+"	 				GLOBAL DEFINITIONS
+" ==========================================================
+
+let mapleader = "\\"
+
+set number          " Show the current line number
+set relativenumber  " Show distance to other lines
+
+set cursorline
+
+" ==========================================================
+"	 				PLUGIN MANAGEMENT
+" ==========================================================
+
+" Configs are in the section 'Plugin Specific Config'
+
 call plug#begin('~/.vim/plugged')
 
 " The best plugin for Go development
@@ -18,8 +35,61 @@ Plug 'ludovicchabant/vim-gutentags'
 
 call plug#end()
 
+" ==========================================================
+"	 				GENERAL UI/UX
+" ==========================================================
+
+" Key bindings are in the section 'Global Keymaps'
+
+syntax on
+filetype plugin indent on
+
+set termguicolors
+set background=dark
+colorscheme molokai
+
+set tabstop=4
+
+" How many columns an 'indent level' is worth
+set shiftwidth=4
+
+" Keep tabs as tabs (Required for Go)
+set noexpandtab
+
+set smartindent
+
+set hlsearch
+set incsearch
+set backspace=indent,eol,start
+
+" Always show the status line, even with only one window
+set laststatus=2
+
+" Custom statusline format
+set statusline=%f\ %m\ %r%=%y\ [%p%%]\ %l:%c
+highlight StatusLine ctermbg=white ctermfg=black
+
+set showcmd
+
+" Enable mouse support in all modes (allows scrolling)
+set mouse=a
+
+highlight CursorLine ctermbg=darkgray cterm=none
+
+" Portable Cursor Shape (WSL & Linux)
+" Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
+if &term =~ 'xterm' || &term =~ 'screen' || &term =~ '256color'
+    let &t_SI = "\<Esc>[6 q" " Insert mode: steady beam
+    let &t_SR = "\<Esc>[4 q" " Replace mode: steady underline
+    let &t_EI = "\<Esc>[2 q" " Normal mode: steady block
+endif
+
+" ==========================================================
+"   		      PLUGIN SPECIFIC CONFIG
+" ==========================================================
+
 let g:coc_global_extensions = ['coc-go', 'coc-json', 'coc-sql', 'coc-sh', 'coc-snippets', 'coc-tag']
-" --- Automation: CoC Tag Fallback (Option 3) ---
+
 " This sets semantic completion as priority and tags as low-priority fallback
 let g:coc_user_config = {
   \ "suggest.languageSourcePriority": 99,
@@ -28,11 +98,143 @@ let g:coc_user_config = {
   \ "suggest.lowPrioritySourceLimit": 5
   \ }
 
+" Use Tab to confirm the selection when the menu is visible
+inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
+
+" --- Vim-Go Settings ---
+let g:go_fmt_autosave = 1          " Auto-format on save using vim-go
+let g:go_metalinter_autosave = 1   " Run error checking on save
+let g:go_highlight_functions = 1   " Enhanced syntax highlighting for Go
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_types = 1
+
 " Ensure Vimspector is available
 if empty(glob('~/.vim/plugged/vimspector'))
   echo "Vimspector not found. Run :PlugInstall first."
 endif
 
+" Put tags(from Gutentags) and vimspector.json in a global gitignore
+" This runs only once if the global ignore file is missing
+if executable('git') && empty(glob('~/.gitignore_global'))
+  silent !touch ~/.gitignore_global
+  silent !echo "tags" >> ~/.gitignore_global
+  silent !echo "tags.lock" >> ~/.gitignore_global
+  silent !echo ".vimspector.json" >> ~/.gitignore_global
+  silent !git config --global core.excludesfile ~/.gitignore_global
+  redraw!
+  echo "Global .gitignore created and configured."
+endif
+
+" Debbuger mappings
+" Toggle breakpoint
+nnoremap <leader>gb :call vimspector#ToggleBreakpoint()<CR>
+" Continue / Start
+nnoremap <leader>gc :call vimspector#Continue()<CR>
+" Stop
+nnoremap <leader>gs :call vimspector#Stop()<CR>
+" Restart
+nnoremap <leader>gr :call vimspector#Restart()<CR>
+" Step Over
+nnoremap <leader>gn :call vimspector#StepOver()<CR>
+" Step Into
+nnoremap <leader>gi :call vimspector#StepInto()<CR>
+" Step Out
+nnoremap <leader>go :call vimspector#StepOut()<CR>
+" Reset
+nnoremap <leader>gq :VimspectorReset!<CR>
+
+" --- Navigation ---
+" Jump to definition
+nmap <silent> <leader>d <Plug>(coc-definition)	
+" Back from definition 
+nnoremap <leader>b <C-o>
+" Open a hover block with definition
+nnoremap <leader>o :call CocActionAsync('doHover')<CR>
+
+nmap <leader>ca <Plug>(coc-codeaction)
+
+nmap <leader>rn <Plug>(coc-rename)
+
+" ==========================================================
+"	 				GLOBAL KEYMAPS
+" ==========================================================
+
+" Clear search highlighting
+nnoremap <Esc> :noh<CR>
+
+" Window Navigation(normal and terminal mode)
+nnoremap <leader>h <C-w>h
+nnoremap <leader>j <C-w>j
+nnoremap <leader>k <C-w>k
+nnoremap <leader>l <C-w>l
+
+tnoremap <leader>h <C-\><C-n><C-w>h
+tnoremap <leader>j <C-\><C-n><C-w>j
+tnoremap <leader>k <C-\><C-n><C-w>k
+tnoremap <leader>l <C-\><C-n><C-w>l
+
+" + and - now resize the window
+nnoremap <silent> + :vertical resize +5<CR>
+nnoremap <silent> - :vertical resize -5<CR>
+
+" Map mouse wheel to scroll the window view (allows scrolling past EOF)
+nnoremap <ScrollWheelUp> <C-y>
+nnoremap <ScrollWheelDown> <C-e>
+
+" Native jumps center automatically
+nnoremap G Gzz
+nnoremap n nzz
+nnoremap N Nzz
+
+" Center screen when moving up and down
+nnoremap j jzz
+nnoremap k kzz
+
+" Reload your config
+nnoremap <leader>v :source $MYVIMRC<CR>
+
+" toggle between current and last file open
+nnoremap <leader>tf <C-^>
+
+" ==========================================================
+"   			  LANGUAGE SPECIFIC CONFIG
+" ==========================================================
+
+" ----------------- Go Language Config ---------------------
+
+" \r to Run, \t to Test
+autocmd FileType go nmap <leader>r <Plug>(go-run)
+autocmd FileType go nmap <leader>t <Plug>(go-test)
+
+" Go uses real tabs, not spaces
+" autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4
+
+" Disable your manual autocmd to prevent conflicts with vim-go's autosave
+" autocmd BufWritePost *.go silent !go fmt %
+
+" --------------- Python Language Config -------------------
+
+" nothing yet
+
+" ------------------ C Language Config ---------------------
+
+" nothing yet
+
+" ==========================================================
+"   				CUSTOM COMMANDS
+" ==========================================================
+
+" Format the current buffer
+command! -nargs=0 Format :call CocActionAsync('format')
+
+command! Shortcuts vsplit ~/vimfiles/shortcuts.txt
+
+" Reload your config
+command! Source source $MYVIMRC
+
+" To config and install a debbuger(binaries must be available)
 function! InstallDebugger(adapter)
   if a:adapter == ''
     echo "Usage: :InstallDebugger <adapter_name>"
@@ -66,175 +268,4 @@ function! InstallDebugger(adapter)
 
   echo "Debugger installation complete."
 endfunction
-
 command! -nargs=1 InstallDebugger call InstallDebugger(<f-args>)
-
-" --- General Settings ---
-syntax on
-filetype plugin indent on
-
-set smartindent
-set number
-set termguicolors
-set background=dark
-colorscheme molokai
-
-" Use Tab to confirm the selection when the menu is visible
-inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
-"
-" Clear search highlighting
-nnoremap <Esc> :noh<CR>
-
-" How many columns a tab counts for (Visual only)
-set tabstop=4
-
-" How many columns an 'indent level' is worth
-set shiftwidth=4
-
-" Keep tabs as tabs (Required for Go)
-set noexpandtab
-
-" Search and Navigation
-set hlsearch
-set incsearch
-set backspace=indent,eol,start
-
-" Format the current buffer
-command! -nargs=0 Format :call CocActionAsync('format')
-
-" --- Go-Specific Formatting ---
-" Go uses real tabs, not spaces
-autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4
-
-" --- Vim-Go Settings ---
-let g:go_fmt_autosave = 1          " Auto-format on save using vim-go
-let g:go_metalinter_autosave = 1   " Run error checking on save
-let g:go_highlight_functions = 1   " Enhanced syntax highlighting for Go
-let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_types = 1
-
-" Disable your manual autocmd to prevent conflicts with vim-go's autosave
-" autocmd BufWritePost *.go silent !go fmt %
-
-" Use \ as your leader key
-let mapleader = "\\"
-
-" Always show the status line, even with only one window
-set laststatus=2
-
-" Custom statusline format
-set statusline=%f\ %m\ %r%=%y\ [%p%%]\ %l:%c
-highlight StatusLine ctermbg=white ctermfg=black
-
-" \r to Run, \t to Test
-autocmd FileType go nmap <leader>r <Plug>(go-run)
-autocmd FileType go nmap <leader>t <Plug>(go-test)
-
-" --- Navigation ---
-" \d for Definition, \b for Back
-" Global jump to definition using CoC
-nmap <silent> <leader>d <Plug>(coc-definition)
-
-" Change this line in your .vimrc:
-nnoremap <leader>b <C-o>
-
-nnoremap <leader>o :call CocActionAsync('doHover')<CR>
-
-nmap <leader>ca <Plug>(coc-codeaction)
-
-nmap <leader>rn <Plug>(coc-rename)
-
-" --- Go Debugger (Using \g prefix instead of \d) ---
-" Toggle breakpoint
-nnoremap <leader>gb :call vimspector#ToggleBreakpoint()<CR>
-
-" Continue / Start
-nnoremap <leader>gc :call vimspector#Continue()<CR>
-
-" Stop
-nnoremap <leader>gs :call vimspector#Stop()<CR>
-
-" Restart
-nnoremap <leader>gr :call vimspector#Restart()<CR>
-
-" Step Over
-nnoremap <leader>gn :call vimspector#StepOver()<CR>
-
-" Step Into
-nnoremap <leader>gi :call vimspector#StepInto()<CR>
-
-" Step Out
-nnoremap <leader>go :call vimspector#StepOut()<CR>
-
-" Reset
-nnoremap <leader>gq :VimspectorReset!<CR>
-
-set showcmd
-
-" Old command: command! GoHelpMe vsplit ~/crawlergo/shortcuts.txt
-command! Shortcuts vsplit ~/vimfiles/shortcuts.txt
-
-" Alternative: Using Leader (\h, \j, etc.)
-" Normal mode
-nnoremap <leader>h <C-w>h
-nnoremap <leader>j <C-w>j
-nnoremap <leader>k <C-w>k
-nnoremap <leader>l <C-w>l
-
-" Terminal mode (IMPORTANT)
-tnoremap <leader>h <C-\><C-n><C-w>h
-tnoremap <leader>j <C-\><C-n><C-w>j
-tnoremap <leader>k <C-\><C-n><C-w>k
-tnoremap <leader>l <C-\><C-n><C-w>l
-
-"+ and - now resize the window
-nnoremap <silent> + :vertical resize +5<CR>
-nnoremap <silent> - :vertical resize -5<CR>
-
-" Portable Cursor Shape (WSL & Linux)
-" Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
-if &term =~ 'xterm' || &term =~ 'screen' || &term =~ '256color'
-    let &t_SI = "\<Esc>[6 q" " Insert mode: steady beam
-    let &t_SR = "\<Esc>[4 q" " Replace mode: steady underline
-    let &t_EI = "\<Esc>[2 q" " Normal mode: steady block
-endif
-
-" --- Automation: Global Gitignore Setup ---
-" This runs only once if the global ignore file is missing
-if executable('git') && empty(glob('~/.gitignore_global'))
-  silent !touch ~/.gitignore_global
-  silent !echo "tags" >> ~/.gitignore_global
-  silent !echo "tags.lock" >> ~/.gitignore_global
-  silent !echo ".vimspector.json" >> ~/.gitignore_global
-  silent !git config --global core.excludesfile ~/.gitignore_global
-  redraw!
-  echo "Global .gitignore created and configured."
-endif
-
-" Enable mouse support in all modes (allows scrolling)
-set mouse=a
-
-" Map mouse wheel to scroll the window view (allows scrolling past EOF)
-nnoremap <ScrollWheelUp> <C-y>
-nnoremap <ScrollWheelDown> <C-e>
-
-set number          " Show the current line number
-set relativenumber  " Show distance to other lines
-
-" Native jumps center automatically
-nnoremap G Gzz
-nnoremap n nzz
-nnoremap N Nzz
-
-" Center screen when moving up and down
-nnoremap j jzz
-nnoremap k kzz
-
-set cursorline
-highlight CursorLine ctermbg=darkgray cterm=none
-
-" Reload your config
-command! Source source $MYVIMRC
-nnoremap <leader>r :source $MYVIMRC<CR>
