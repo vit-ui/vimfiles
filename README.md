@@ -48,12 +48,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
    :PlugInstall
    ```
 
-### 4) Setup Debugger
-   
-   See the [Debugging Setup](#debugging-setup-vimspector--dap) section for details
-
 > The first time you open Vim, it will automatically create and configure a global `~/.gitignore_global` to ignore `tags` and debugger config files.
-
 
 ---
 
@@ -141,8 +136,7 @@ Highlighting and completion are handled with CoC extensions. To add a new langua
 <details>
 <summary><b>Go Setup</b></summary>
 
-1. Install Go tooling:
-    Run this in Vim:
+1. To install Go tooling, run this in Vim:
 
    ```vim
    :GoUpdateBinaries
