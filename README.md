@@ -7,7 +7,7 @@ My personal configuration for development on WSL/Linux.
 ## Repository Structure
 
 * `.vimrc` – Vim config file
-* `.bashrc` – bash config file
+* `.bashrc` – Bash config file
 * `shortcuts.txt` – Quick reference for Vim, Git, Go, and debugging commands
 
 ---
@@ -84,9 +84,9 @@ What this does:
 * Runs `:VimspectorInstall <adapter_name>`
 * Creates a minimal `.vimspector.json` if missing
 
-> It does **not** install the debugger binary itself.
+> It does **not** install the debugger binary itself
 
-> **Must be run in the project root directory:**
+> **Must be run in the project root directory**
 
 As an example, for Go development, you must install the Delve binary manually before use:
 
@@ -136,12 +136,13 @@ Once inside Vim, execute:
 
 Highlighting and completion are handled with CoC extensions. To add a new language, add its extension name (e.g., `coc-pyright`) to the `g:coc_global_extensions` list in your `.vimrc` to ensure it installs automatically.
 
+**Ensure** the [Setup Instructions](#setup-instructions) have been completed before proceeding
+
 <details>
 <summary><b>Go Setup</b></summary>
 
-> **Ensure** the [Setup Instructions](#setup-instructions) have been completed before proceeding
-
 1. Install Go tooling:
+    Run this in Vim:
 
    ```vim
    :GoUpdateBinaries
@@ -182,9 +183,9 @@ Highlighting and completion are handled with CoC extensions. To add a new langua
 * Beam cursor in Insert mode
 * Works correctly in WSL and common Linux terminals
 
-### Window Navigation (Works Everywhere)
+### Window Navigation 
 
-Use `<leader>` with the navigation keys to move between windows.
+Use `leader` with the navigation keys to move between windows.
 
 This works inside:
 
