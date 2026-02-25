@@ -18,7 +18,7 @@ Plug 'ludovicchabant/vim-gutentags'
 
 call plug#end()
 
-let g:coc_global_extensions = ['coc-go', 'coc-json', 'coc-sql', 'coc-sh', 'coc-snippets']
+let g:coc_global_extensions = ['coc-go', 'coc-json', 'coc-sql', 'coc-sh', 'coc-snippets', 'coc-tag']
 " --- Automation: CoC Tag Fallback (Option 3) ---
 " This sets semantic completion as priority and tags as low-priority fallback
 let g:coc_user_config = {
@@ -81,6 +81,9 @@ colorscheme molokai
 
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
+"
+" Clear search highlighting
+nnoremap <Esc> :noh<CR>
 
 " How many columns a tab counts for (Visual only)
 set tabstop=4
@@ -133,7 +136,9 @@ autocmd FileType go nmap <leader>t <Plug>(go-test)
 " \d for Definition, \b for Back
 " Global jump to definition using CoC
 nmap <silent> <leader>d <Plug>(coc-definition)
-nnoremap <leader>b <C-t>
+
+" Change this line in your .vimrc:
+nnoremap <leader>b <C-o>
 
 nnoremap <leader>o :call CocActionAsync('doHover')<CR>
 
@@ -207,3 +212,29 @@ if executable('git') && empty(glob('~/.gitignore_global'))
   redraw!
   echo "Global .gitignore created and configured."
 endif
+
+" Enable mouse support in all modes (allows scrolling)
+set mouse=a
+
+" Map mouse wheel to scroll the window view (allows scrolling past EOF)
+nnoremap <ScrollWheelUp> <C-y>
+nnoremap <ScrollWheelDown> <C-e>
+
+set number          " Show the current line number
+set relativenumber  " Show distance to other lines
+
+" Native jumps center automatically
+nnoremap G Gzz
+nnoremap n nzz
+nnoremap N Nzz
+
+" Center screen when moving up and down
+nnoremap j jzz
+nnoremap k kzz
+
+set cursorline
+highlight CursorLine ctermbg=darkgray cterm=none
+
+" Reload your config
+command! Source source $MYVIMRC
+nnoremap <leader>r :source $MYVIMRC<CR>

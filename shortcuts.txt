@@ -3,42 +3,46 @@
 ============================================================
 
 -- VIM WINDOWS & NAVIGATION --
-\h \j \k \l   : Jump Left, Down, Up, Right
-:vsplit       : Create vertical split
-:q            : Close current split
-Ctrl + w then = : Make all splits equal size
-+ / -         : Resize window width (+5 / -5)
-:Shortcuts    : Open this help file in a vertical split
+\h \j \k \l			: Jump Left, Down, Up, Right
+:vsplit     	  	: Create vertical split
+:q            		: Close current split
+Ctrl + w then =		: Make all splits equal size
++ / -         		: Resize window width (+5 / -5)
+:Shortcuts    		: Open this help file in a vertical split
 
 -- EDITING & SHORTCUTS --
-gcc           : Comment/Uncomment current line (Commentary plugin)
-gc (visual)   : Comment/Uncomment selection (Commentary plugin)
-u             : Undo
-Ctrl + r      : Redo
-Tab           : Select CoC autocomplete suggestion
-\o            : Open Documentation for word under cursor (LSP)
-\d            : Jump INTO Definition (Global)
-\b            : Jump BACK from Definition (Mapped to Ctrl+t)
-\rn           : Rename variable project-wide (Global)
-\ca 		  : Open CoC Code Actions (fixes/suggestions)
-:Format 	  : Manually trigger LSP formatting
+gcc           		: Comment/Uncomment current line (Commentary plugin)
+gc (visual)			: Comment/Uncomment selection (Commentary plugin)
+u					: Undo
+Ctrl + r			: Redo
+Tab					: Select CoC autocomplete suggestion
+zz					: Manual center current line
+\o					: Open Documentation for word under cursor (LSP)
+\d					: Jump INTO Definition (Global)
+\b					: Jump BACK from Definition (Mapped to Ctrl+t)
+\rn					: Rename variable project-wide (Global)
+\ca					: Open CoC Code Actions (fixes/suggestions)
+\r					: Reloads Vim configuration from any file
+:Source				: Reloads Vim configuration from any file
+:Format				: Manually trigger LSP formatting
 
-:tag <word>   : Jumps to the first definition.
-:tselect <word>: Shows a list of all matching tags to choose from.
+
+:tag <word>			: Jumps to the first definition.
+:tselect <word>		: Shows a list of all matching tags to choose from.
 
 -- GO DEVELOPMENT & NAVIGATION --
-:GoRename     : Rename variable project-wide
-:GoAddTags    : Add JSON tags to struct fields
+:GoRename			: Rename variable project-wide
+:GoAddTags			: Add JSON tags to struct fields
 
 -- DEBUGGING (DAP) --
-\gb			  : Toggle breakpoint
-\gc			  : Start / Continue debugging
-\gs			  : Stop debugging session
-\gr			  : Restart debugging
-\gn			  : Step over
-\gi  		  : Step into
-\go			  : Step out
-\gq			  : Reset Debugger
+\gb					: Toggle breakpoint
+\gc					: Start / Continue debugging
+\gs					: Stop debugging session
+\gr					: Restart debugging
+\gn					: Step over
+\gi					: Step into
+\go					: Step out
+\gq					: Reset Debugger
 
 :InstallDebugger <adapter_name>
 
@@ -47,38 +51,38 @@ Requires:
 - Language-specific debugger binary installed
 
 -- SEARCHING (RIPGREP) --
-rg -l '"http"'    : List files with literal "http" import
-rg -t go "func"   : Search only inside .go files
-rg -i "text"      : Case-insensitive search
-rg --hidden "str" : Search including hidden files (like .vimrc)
-rg -t sql "text"  : Search only inside .sql files
+rg -l '"http"'		: List files with literal "http" import
+rg -t go "func"		: Search only inside .go files
+rg -i "text"		: Case-insensitive search
+rg --hidden "str"	: Search including hidden files (like .vimrc)
+rg -t sql "text"	: Search only inside .sql files
 
 -- TERMINAL & FILES --
-mv old new    : Rename or move a file/directory
-cp old new    : Copy a file
-rm file       : Delete a file
-go mod tidy   : Clean up dependencies in go.mod/go.sum
+mv old new	    	: Rename or move a file/directory
+cp old new			: Copy a file
+rm file 	    	: Delete a file
+go mod tidy 		: Clean up dependencies in go.mod/go.sum
 
 -- GIT OPERATIONS --
-git commit --amend --no-edit : Add fix to last commit (keep message)
+git commit --amend --no-edit
 git config --global user.name "Vitor"
 git config --global user.email "your@email.com"
 
 -- GITHUB CLI (GH) --
-gh auth login          : Authenticate with your GitHub account
-gh repo clone [repo]   : Clone a repository locally
-gh pr create           : Create a new pull request from current branch
-gh pr list             : List open pull requests in current repo
-gh issue list          : List open issues in the repository
-gh browse              : Open the current repository in your browser
+gh auth login		: Authenticate with your GitHub account
+gh repo clone [repo]: Clone a repository locally
+gh pr create		: Create a new pull request from current branch
+gh pr list			: List open pull requests in current repo
+gh issue list		: List open issues in the repository
+gh browse			: Open the current repository in your browser
 
 -- VIM ERRORS (QUICKFIX) --
-:copen / :cclose : Open/Close Error window
-:cn / :cp        : Jump to Next/Previous error
+:copen / :cclose	: Open/Close Error window
+:cn / :cp			: Jump to Next/Previous error
 
 -- VIM PLUG (THE MANAGER) --
-:PlugInstall : Installs plugins listed in .vimrc
-:PlugUpdate  : Updates all plugins
-:PlugClean   : Removes plugins no longer in .vimrc
+:PlugInstall		: Installs plugins listed in .vimrc
+:PlugUpdate			: Updates all plugins
+:PlugClean			: Removes plugins no longer in .vimrc
 
 ============================================================
