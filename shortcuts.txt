@@ -12,7 +12,7 @@
 \v					: Reloads your .vimrc configuration
 \tf					: Toggle between current and last file you had open
 Ctrl + w then =		: Make all splits equal size
-; / ,				: Repeat f or t forward/backward
+; / ,				: Repeat f or t command forward/backward
 + / -         		: Resize window width (+5 / -5)
 u					: Undo
 Ctrl + r			: Redo
@@ -31,12 +31,11 @@ gi					: Move to the last place you were in insert mode and enters insert mode
 \ca					: Open CoC Code Actions (fixes/suggestions)
 Tab					: Select CoC autocomplete suggestion
 ci<char>            : Change Inside delimiter (e.g. ci" replaces text inside quotes)
-di<char>            : Change Inside delimiter (e.g. di" deletes text inside quotes)
+di<char>            : Delete Inside delimiter (e.g. di" deletes text inside quotes)
 gcc           		: Comment/Uncomment current line (Commentary plugin)
 gc (in visual mode)	: Comment/Uncomment selection (Commentary plugin)
 *					: Highlight all occurrences of the word currently under the cursor
-:%s/old/new/g       : Search and replace in whole file
-:%s/old/new/gc      : Same but asks confirmation on each match
+:%s/old/new/gc      : Search and replace in whole file(adding c at the end asks confirmation on each match)
 :copen :cclose		: Open/Close Error window
 :cn :cp				: Jump to Next/Previous error
 :Format				: Manually trigger LSP formatting

@@ -16,16 +16,21 @@ My personal configuration for development on WSL/Linux.
 
 ### 0) Install System Dependencies
 
-Some useful tools(use is in `shortcuts.txt`):
-
+**Universal Ctags** — generates tag files for code symbol navigation, required by Gutentags:
 ```bash
-sudo apt update
-sudo apt install universal-ctags ripgrep gh go 
+sudo apt install universal-ctags
+```
+
+Some useful tools(use is in `shortcuts.txt`):
+```bash
+sudo apt install ripgrep 
+curl -sS https://webi.sh/gh | sh
 ```
 
 * ripgrep(rp) - a fast file content search tool that replaces grep for code
-* GitHub CLI(gh) - a command-line interface for GitHub operations
-* Universal Ctags - tool that generates tag files for code symbol indexing, used by Gutentags
+* GitHub CLI(gh) - a command-line interface for GitHub operations(installed with `webi` to get the latest version)
+
+For instructions on language instalations go to [Specific Language Setup](#specific-language-setup) section.
 
 ### 1) Link the Configuration
 
@@ -142,6 +147,16 @@ Highlighting and completion are handled with CoC extensions. To add a new langua
 <details>
 <summary><b>Go Setup</b></summary>
 
+0. To install go:
+    Download the latest `.tar.gz` from https://go.dev/dl/ and run:
+    ```bash
+    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.26.0.linux-amd64.tar.gz
+    ```
+
+    It is already in the PATH environment variable. So just verify the instalation with:
+    ```bash
+    go version
+    ```
 1. To install Go tooling, run this in Vim:
 
    ```vim
@@ -168,7 +183,7 @@ Highlighting and completion are handled with CoC extensions. To add a new langua
 ---
 
 ## Bash 
-The `.bashrc` is symlinked from this repo in [step 1](#1-link-the-configuration). After linking, run:
+The `.bashrc` is symlinked from this repo. After linking, run:
 ```bash
 source ~/.bashrc
 ```
@@ -181,12 +196,32 @@ up 2 # same as cd ../..
 up 3 # same as cd ../../..
 ```
 * `$BROWSER` - Points to Brave on Windows (WSL) and default browser on linux.
-    `browser` is a alias:
+   `browser` is a alias:
     ```bash
-    browser # opens brave on wls and the default browser on linux
+    browser # opens brave on wsl and the default browser on linux
     ```
 
 * `$PATH` additions - Adds `~/go/bin` and `/usr/local/go/bin` so Go binaries are available globally
+
+* `mkcd <dir>` - Creates a directory and immediately enters it.
+```bash
+    mkcd my-project  # same as mkdir -p my-project && cd my-project
+```
+
+* `$EDITOR` - Set to `vim`. Used by tools that open an editor (e.g. `Ctrl+X Ctrl+E` in the terminal, `git commit` without `-m`).
+
+* `$HISTTIMEFORMAT` - Adds timestamps to shell history output. Run `history` to see them.
+
+* Aliases:
+    | Alias | Expands to | Description |
+    |-------|-----------|-------------|
+    | `..` | `cd ..` | Go up one directory |
+    | `browser`| `$BROWSER` | opens brave on wsl and the default browser on linux |
+    | `gs` | `git status` | |
+    | `gl` | `git log --oneline --graph --decorate` | Compact visual git log |
+    | `watch` | `watch -n 2` | Repeat a command every 2 seconds by default |
+    
+---
 
 ## UI and Navigation
 
@@ -263,5 +298,8 @@ source ~/.bashrc  # Apply any changes to the current terminal
 
 * Vim
 * Git
+* Go
 * Universal Ctags
-* Language-specific debugger installed (e.g., Delve)
+* ripgrep
+* GitHub CLI (`gh`)
+* Language-specific debugger binary (e.g., Delve for Go)

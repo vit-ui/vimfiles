@@ -198,8 +198,10 @@ nnoremap <leader>v :source $MYVIMRC<CR>
 " toggle between current and last file open
 nnoremap <leader>tf <C-^>
 
-" Map 0D to a easier shortcut
+" Map dd to not delete the line, jsut its contents.
+" To delete line i made a new command
 nnoremap dd 0D
+nnoremap dl dd
 
 " ==========================================================
 "   			  LANGUAGE SPECIFIC CONFIG
@@ -244,31 +246,32 @@ function! InstallDebugger(adapter)
     return
   endif
 
-  " Install adapter
   execute 'VimspectorInstall ' . a:adapter
 
-  " Create .vimspector.json if missing
+  let l:new_entry = {
+        \ 'adapter': a:adapter,
+        \ 'configuration': {
+        \   'request': 'launch',
+        \   'program': '${workspaceRoot}',
+        \   'mode': 'debug'
+        \ }
+        \ }
+
   if !filereadable('.vimspector.json')
-    let l:config = [
-          \ '{',
-          \ '  "configurations": {',
-          \ '    "Launch": {',
-          \ '      "adapter": "' . a:adapter . '",',
-          \ '      "configuration": {',
-          \ '        "request": "launch",',
-          \ '        "program": "${workspaceRoot}",',
-          \ '        "mode": "debug"',
-          \ '      }',
-          \ '    }',
-          \ '  }',
-          \ '}'
-          \ ]
-    call writefile(l:config, '.vimspector.json')
-    echo ".vimspector.json created."
+    let l:vimspector = {'configurations': {a:adapter: l:new_entry}}
+    echo "Created .vimspector.json with '" . a:adapter . "' configuration."
   else
-    echo ".vimspector.json already exists."
+    let l:content = join(readfile('.vimspector.json'), "\n")
+    let l:vimspector = json_decode(l:content)
+    if has_key(l:vimspector.configurations, a:adapter)
+      echo "Configuration for '" . a:adapter . "' already exists."
+      return
+    endif
+    let l:vimspector.configurations[a:adapter] = l:new_entry
+    echo "Added '" . a:adapter . "' to existing .vimspector.json."
   endif
 
-  echo "Debugger installation complete."
+  call writefile([json_encode(l:vimspector)], '.vimspector.json')
 endfunction
+
 command! -nargs=1 InstallDebugger call InstallDebugger(<f-args>)
