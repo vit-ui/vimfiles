@@ -15,11 +15,17 @@ My personal configuration for development on WSL/Linux.
 ## Setup Instructions
 
 ### 0) Install System Dependencies
-Universal Ctags is required for the Gutentags automation:
+
+Some useful tools(use is in `shortcuts.txt`):
 
 ```bash
-sudo apt update && sudo apt install universal-ctags
+sudo apt update
+sudo apt install universal-ctags ripgrep gh go 
 ```
+
+* ripgrep(rp) - a fast file content search tool that replaces grep for code
+* GitHub CLI(gh) - a command-line interface for GitHub operations
+* Universal Ctags - tool that generates tag files for code symbol indexing, used by Gutentags
 
 ### 1) Link the Configuration
 
@@ -42,7 +48,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 ### 3) Install Plugins
 
-1. Open Vim and run:
+Open Vim and run:
 
    ```vim
    :PlugInstall
@@ -60,7 +66,7 @@ Debugging is powered by Vimspector using the Debug Adapter Protocol (DAP).
 
 ### Install Debug Adapter
 
-To setup a debugger you run a custom helper command defined in `.vimrc`:
+To set up a debugger you run a custom helper command defined in `.vimrc`:
 
 ```vim
 :InstallDebugger <adapter_name>
@@ -161,6 +167,27 @@ Highlighting and completion are handled with CoC extensions. To add a new langua
 
 ---
 
+## Bash 
+The `.bashrc` is symlinked from this repo in [step 1](#1-link-the-configuration). After linking, run:
+```bash
+source ~/.bashrc
+```
+
+What is included:
+
+* `up [n]` - Navigate up N directories.
+```bash
+up 2 # same as cd ../..
+up 3 # same as cd ../../..
+```
+* `$BROWSER` - Points to Brave on Windows (WSL) and default browser on linux.
+    `browser` is a alias:
+    ```bash
+    browser # opens brave on wls and the default browser on linux
+    ```
+
+* `$PATH` additions - Adds `~/go/bin` and `/usr/local/go/bin` so Go binaries are available globally
+
 ## UI and Navigation
 
 ### Status Line Reference
@@ -201,6 +228,10 @@ For more shortcuts, read the `.vimrc` file:
 cat ~/.vimrc
 ```
 
+> Navigation keys apply centering(vim `zz` command) automatically
+
+> The `:Shortcuts` command points to `~/vimfiles/shortcuts.txt`. If you cloned this repo to a different location, update the path in `.vimrc` at the line `command! Shortcuts vsplit ~/vimfiles/shortcuts.txt`.
+
 --- 
 
 ## Syncing Changes
@@ -232,5 +263,5 @@ source ~/.bashrc  # Apply any changes to the current terminal
 
 * Vim
 * Git
+* Universal Ctags
 * Language-specific debugger installed (e.g., Delve)
-

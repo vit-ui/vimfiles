@@ -8,6 +8,7 @@ set number          " Show the current line number
 set relativenumber  " Show distance to other lines
 
 set cursorline
+highlight CursorLine ctermbg=darkgray cterm=none
 
 " ==========================================================
 "	 				PLUGIN MANAGEMENT
@@ -74,7 +75,6 @@ set showcmd
 " Enable mouse support in all modes (allows scrolling)
 set mouse=a
 
-highlight CursorLine ctermbg=darkgray cterm=none
 
 " Portable Cursor Shape (WSL & Linux)
 " Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
@@ -197,6 +197,9 @@ nnoremap <leader>v :source $MYVIMRC<CR>
 
 " toggle between current and last file open
 nnoremap <leader>tf <C-^>
+
+" Map 0D to a easier shortcut
+nnoremap dd 0D
 
 " ==========================================================
 "   			  LANGUAGE SPECIFIC CONFIG

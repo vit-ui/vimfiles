@@ -12,25 +12,31 @@
 \v					: Reloads your .vimrc configuration
 \tf					: Toggle between current and last file you had open
 Ctrl + w then =		: Make all splits equal size
+; / ,				: Repeat f or t forward/backward
 + / -         		: Resize window width (+5 / -5)
 u					: Undo
 Ctrl + r			: Redo
 %					: Jump between matching pairs of brackets () or {}
+gi					: Move to the last place you were in insert mode and enters insert mode
 :Source				: Reloads your .vimrc configuration
 :Shortcuts    		: Open this help file in a vertical split
 :vsplit     	  	: Create vertical split
 :q            		: Close current split
 
 -- VIM: CODE EDITING & LSP (Plugin-Powered) --
-\d					: Jump INTO Definition (Global)
+\d					: Jump INTO Definition
 \b					: Jump BACK from Definition 
 \o					: Open Documentation for word under cursor (LSP)
 \rn					: Rename variable project-wide (Global)
 \ca					: Open CoC Code Actions (fixes/suggestions)
 Tab					: Select CoC autocomplete suggestion
+ci<char>            : Change Inside delimiter (e.g. ci" replaces text inside quotes)
+di<char>            : Change Inside delimiter (e.g. di" deletes text inside quotes)
 gcc           		: Comment/Uncomment current line (Commentary plugin)
 gc (in visual mode)	: Comment/Uncomment selection (Commentary plugin)
 *					: Highlight all occurrences of the word currently under the cursor
+:%s/old/new/g       : Search and replace in whole file
+:%s/old/new/gc      : Same but asks confirmation on each match
 :copen :cclose		: Open/Close Error window
 :cn :cp				: Jump to Next/Previous error
 :Format				: Manually trigger LSP formatting
@@ -59,7 +65,12 @@ go mod tidy 		: Clean up dependencies in go.mod/go.sum
 mv old new	    	: Rename or move a file/directory
 cp old new			: Copy a file
 rm file 	    	: Delete a file
-
+Ctrl+R              : Reverse history search (type any part of a past command)
+Ctrl+A / Ctrl+E     : Move cursor to beginning / end of line
+Alt+B / Alt+F			: Move backward/forward one word
+cd -                : Switch to previous working directory
+sudo !!             : Re-run last command with sudo(!! repeats last command)
+diff -u file1 file2	: Shows differences between two files(-U produces more readable output)
 
 -- TERMINAL: RIPGREP --
 rg -l '"http"'		: List files with literal "http" import

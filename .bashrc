@@ -116,11 +116,24 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# =============================================
+# 				  MY CHANGES 
+# =============================================
+
 export PATH=$PATH:$HOME/go/bin
 export PATH=$PATH:/usr/local/go/bin
+export EDITOR=vim
+export HISTTIMEFORMAT="%F %T "   # timestamps in history output
 
-export BROWSER='/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
-alias brave-browser="'$BROWSER'"
+if grep -qi microsoft /proc/version 2>/dev/null; then
+    export BROWSER='/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe'
+else
+    export BROWSER='xdg-open'
+fi
+alias browser="$BROWSER"
+
+# mkcd: create a directory and cd into it in one step
+mkcd() { mkdir -p "$1" && cd "$1"; }
 
 # Function to go up N directories
 up() {
@@ -138,5 +151,13 @@ up() {
   fi
 }
 
-tabs -4
-PROMPT_COMMAND='tabs -4 >/dev/null 2>&1'
+# Capture the escape sequence once
+TAB_SET=$(tabs -4)
+# Add it to the start of your PS1 to re-apply stops silently after every command
+PS1="\[$TAB_SET\]$PS1"
+
+# Useful aliases
+alias ..='cd ..'          # replaces your up(1) for the common case
+alias gs='git status'
+alias gl='git log --oneline --graph --decorate'
+alias watch='watch -n 2'  # default interval of 2s
