@@ -7,6 +7,12 @@ let mapleader = "\\"
 set number          " Show the current line number
 set relativenumber  " Show distance to other lines
 
+" desable vi
+set nocompatible
+
+" flashes instead of beeping on error
+set visualbell
+
 set cursorline
 highlight CursorLine ctermbg=darkgray cterm=none
 
@@ -77,6 +83,8 @@ set mouse=a
 
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
+
+
 
 " Portable Cursor Shape (WSL & Linux)
 " Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
@@ -164,11 +172,8 @@ nmap <leader>rn <Plug>(coc-rename)
 " ==========================================================
 
 " Clear search highlighting. remap <Esc> to <Esc><Esc> to make it faster
-nnoremap <Esc><Esc> <Esc>
-nnoremap <Esc> :noh<CR>
+nnoremap <Esc><Esc> :noh<CR>
 
-" Map qq to <Esc> in insert mode
-inoremap qq <Esc>
 " Window Navigation(normal and terminal mode)
 nnoremap <leader>h <C-w>h
 nnoremap <leader>j <C-w>j
@@ -194,8 +199,8 @@ nnoremap n nzz
 nnoremap N Nzz
 
 " Center screen when moving up and down
-nnoremap j jzz
-nnoremap k kzz
+nnoremap j gjzz
+nnoremap k gkzz
 
 " Reload your config
 nnoremap <leader>v :source $MYVIMRC<CR>
@@ -207,6 +212,30 @@ nnoremap <leader>tf <C-^>
 " To delete line i made a new command
 nnoremap dd 0D
 nnoremap dl dd
+
+" to create new lines in normal mode and stay there
+nnoremap <space>j o<Esc>
+nnoremap <space>k O<Esc>
+
+" Normal mode: move current line
+nnoremap <C-k> :m .-2<CR>==
+nnoremap <C-j> :m .+1<CR>==
+
+" Visual mode: move selected block
+vnoremap <C-k> :m '<-2<CR>gv=gv
+vnoremap <C-j> :m '>+1<CR>gv=gv
+
+" Map qq to <Esc> in insert mode
+inoremap qq <Esc>
+
+" some language shortcuts:
+" C / C++
+inoremap ;; <Esc>g_a;   " append ; at end of line
+inoremap {{ <Esc>g_a{   " append { at end of line
+inoremap ,, <Esc>la,    " insert , after next character
+
+" Python
+inoremap :: <Esc>g_a:   " append : at end of line
 
 " ==========================================================
 "   			  LANGUAGE SPECIFIC CONFIG

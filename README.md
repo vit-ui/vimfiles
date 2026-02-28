@@ -130,6 +130,7 @@ Generated `.vimspector.json`:
         "program": "${program}",
         "args": [],
         "cwd": "${workspaceRoot}",
+        "env": {}
         "mode": "debug"
       }
     }
@@ -171,7 +172,7 @@ Highlighting and completion are handled with CoC extensions. To add a new langua
 0. To install go:
     Download the latest `.tar.gz` from https://go.dev/dl/ and run:
     ```bash
-    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.26.0.linux-amd64.tar.gz
+    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go_XX.X.tar.gz
     ```
 
     It is already in the PATH environment variable. So just verify the instalation with:
@@ -217,10 +218,6 @@ up 2 # same as cd ../..
 up 3 # same as cd ../../..
 ```
 * `$BROWSER` - Points to Brave on Windows (WSL) and default browser on linux.
-   `browser` is a alias:
-    ```bash
-    browser # opens brave on wsl and the default browser on linux
-    ```
 
 * `$PATH` additions - Adds `~/go/bin` and `/usr/local/go/bin` so Go binaries are available globally
 

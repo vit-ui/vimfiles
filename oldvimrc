@@ -1,0 +1,138 @@
+" Don't try to be vi compatible
+set nocompatible
+
+let mapleader = "\"
+inoremap <leader><leader> \
+
+" Blink cursor on error instead of beeping (grr)
+set visualbel
+
+nnoremap k gk
+nnoremap j gj
+
+" copied from Vim 7.3's mswin.vim:
+
+" CTRL-X and SHIFT-Del are Cut
+vnoremap <C-X> "+x
+vnoremap <S-Del> +x<C-o>dd
+
+" CTRL-C and CTRL-Insert are Copy
+vnoremap <C-C> +y
+vnoremap <C-Insert> +y
+
+" CTRL-V and SHIFT-Insert are Paste
+map <C-V>		+gP
+map <S-Insert>		+gP
+imap <C-V>		<Esc>"+gpa<Enter>
+
+cmap <C-V>		<C-R>+
+cmap <S-Insert>		<C-R>+
+
+imap <S-Insert>		<C-V><Enter>
+vmap <S-Insert>		<C-V>
+
+" Use CTRL-Q to do what CTRL-V used to do
+noremap <C-Q>		<C-V>
+
+" set 'selection', 'selectmode', 'mousemodel' and 'keymodel' for MS-Windows
+behave mswin
+
+let visual work  
+set keymodel-=stopsel  
+set selectmode=
+set mouse+=a
+
+set backspace=indent,eol,start whichwrap+=<,>,[,]
+
+" backspace in Visual mode deletes selection
+vnoremap <BS> d
+
+" Use CTRL-S for saving, also in Insert mode
+noremap <C-S>		:update<CR>
+vnoremap <C-S>		<C-C>:update<CR>
+inoremap <C-S>		<C-O>:update<CR>
+
+" CTRL-Z is Undo; not in cmdline though
+noremap <C-Z> u
+inoremap <C-Z> <C-O>u
+
+" CTRL-Y is Redo (although not repeat); not in cmdline though
+noremap <C-Y> <C-R>
+inoremap <C-Y> <C-O><C-R>
+
+" CTRL-A is Select all
+noremap <C-A> gggH<C-O>G
+inoremap <C-A> <C-O>gg<C-O>gH<C-O>G
+cnoremap <C-A> <C-C>gggH<C-O>G
+onoremap <C-A> <C-C>gggH<C-O>G
+snoremap <C-A> <C-C>gggH<C-O>G
+xnoremap <C-A> <C-C>ggVG
+
+" Trying some remapings:
+
+" Normal Mode:
+nnoremap <leader><Enter> o
+nnoremap <leader><Enter><Enter> O
+
+noremap <Enter> o<Esc>
+nnoremap <Enter><Enter> O<Esc>  
+
+" Insert mode:
+inoremap <leader> <C-o>
+inoremap ak <C-o>k
+inoremap aj <C-o>j
+inoremap ah <C-o>h
+inoremap al <C-o>l
+
+inoremap <leader>J JJ 
+inoremap JJ <C-o>o
+ 
+inoremap <leader>K KK 
+inoremap KK <C-o>O
+
+inoremap <leader>A AA
+inoremap AA <C-o>I
+
+inoremap <leader>a aa
+inoremap aa <C-o>A
+
+inoremap <leader>s std::
+
+inoremap qq <Esc>
+
+" C++
+inoremap ;; <Esc>g_a;
+inoremap {{ <Esc>g_a{
+inoremap ,, <Esc>la,
+
+" Python
+inoremap :: <Esc>g_a:
+
+" Using arrow keys to move between tabs in Normal and Insert modes:
+nnoremap <left> gT
+nnoremap <right> gt
+inoremap <left> <C-o>gT
+inoremap <right> <C-o>gt
+
+nnoremap <Down> <<
+nnoremap <Up> >>
+inoremap <Up> <C-o>>>
+inoremap <Down> <C-o><<
+
+" Visual and Select modes:
+vnoremap << <C-o><<
+vnoremap >> <C-o>>>
+vnoremap <Up> <C-o>>>
+vnoremap <Down> <C-o><<
+
+" Move line up/down with Alt+k / Alt+j
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+
+" Move visual block up/down
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
+" folding method
+set foldmethod=indent
+
