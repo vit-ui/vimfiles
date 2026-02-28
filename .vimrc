@@ -75,6 +75,8 @@ set showcmd
 " Enable mouse support in all modes (allows scrolling)
 set mouse=a
 
+" This tells Vim to wait only 10ms for the rest of an escape sequence
+set ttimeoutlen=10
 
 " Portable Cursor Shape (WSL & Linux)
 " Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
@@ -161,9 +163,12 @@ nmap <leader>rn <Plug>(coc-rename)
 "	 				GLOBAL KEYMAPS
 " ==========================================================
 
-" Clear search highlighting
+" Clear search highlighting. remap <Esc> to <Esc><Esc> to make it faster
+nnoremap <Esc><Esc> <Esc>
 nnoremap <Esc> :noh<CR>
 
+" Map qq to <Esc> in insert mode
+inoremap qq <Esc>
 " Window Navigation(normal and terminal mode)
 nnoremap <leader>h <C-w>h
 nnoremap <leader>j <C-w>j
@@ -248,12 +253,29 @@ function! InstallDebugger(adapter)
 
   execute 'VimspectorInstall ' . a:adapter
 
+  let l:filetypes = {
+        \ 'delve': ['go'],
+        \ 'debugpy': ['python'],
+        \ 'CodeLLDB': ['c', 'cpp'],
+        \ }
+
+  if has_key(l:filetypes, a:adapter)
+    let l:ft = l:filetypes[a:adapter]
+  else
+    let l:input = input("Enter filetypes for '" . a:adapter . "' (comma-separated, e.g. go,python): ")
+    let l:ft = split(l:input, '\s*,\s*')
+  endif
+
   let l:new_entry = {
         \ 'adapter': a:adapter,
+        \ 'filetypes': l:ft,
         \ 'configuration': {
         \   'request': 'launch',
-        \   'program': '${workspaceRoot}',
-        \   'mode': 'debug'
+        \   'program': '${program}',
+        \   'args': [],
+        \   'cwd': '${workspaceRoot}',
+		\	'mode': 'debug',
+  		\ 	'env':	{},
         \ }
         \ }
 

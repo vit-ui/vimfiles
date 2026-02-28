@@ -27,7 +27,7 @@ sudo apt install ripgrep
 curl -sS https://webi.sh/gh | sh
 ```
 
-* ripgrep(rp) - a fast file content search tool that replaces grep for code
+* ripgrep(rg) - a fast file content search tool that replaces grep for code
 * GitHub CLI(gh) - a command-line interface for GitHub operations(installed with `webi` to get the latest version)
 
 For instructions on language instalations go to [Specific Language Setup](#specific-language-setup) section.
@@ -88,12 +88,22 @@ Examples:
 What this does:
 
 * Runs `:VimspectorInstall <adapter_name>`
-* Creates a minimal `.vimspector.json` if missing
+* Creates `.vimspector.json` if missing, or merges into it if it already exists
+* Automatically assigns filetypes for known adapters (see table below)
+* For unknown adapters, prompts you to enter filetypes manually
+
+Run `:Format` on `.vimspector.json` to pretty-print the generated file
 
 > It does **not** install the debugger binary itself
 
 > **Must be run in the project root directory**
 
+> When you launch a debug session with `\gc`, Vimspector will prompt you to fill in `${program}`. Enter the path to your entry point:
+> * Go: `.` or `./cmd/myapp`
+> * Python: `main.py` or `./src/main.py`
+> * C/C++: `./myapp` or `./build/myapp`
+
+#### Example
 As an example, for Go development, you must install the Delve binary manually before use:
 
 ```bash
@@ -108,23 +118,34 @@ Once inside Vim, execute:
 :InstallDebugger delve
 ```
 
-### Minimal `.vimspector.json` Example (Go)
-
+Generated `.vimspector.json`:
 ```json
 {
   "configurations": {
-    "Launch": {
+    "delve": {
       "adapter": "delve",
       "filetypes": ["go"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}",
+        "program": "${program}",
+        "args": [],
+        "cwd": "${workspaceRoot}",
         "mode": "debug"
       }
     }
   }
 }
 ```
+
+#### Known Adapters
+
+| Adapter | Filetypes | Language |
+|---------|-----------|----------|
+| `delve` | `go` | Go |
+| `debugpy` | `python` | Python |
+| `CodeLLDB` | `c`, `cpp` | C / C++ |
+
+> you can add more in the `filetypes` variable on function `InstallDebugger` that is in `vimrc`
 
 ### Typical Debug Flow
 
@@ -150,7 +171,7 @@ Highlighting and completion are handled with CoC extensions. To add a new langua
 0. To install go:
     Download the latest `.tar.gz` from https://go.dev/dl/ and run:
     ```bash
-    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.26.0.linux-amd64.tar.gz
+    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.26.0.linux-amd64.tar.gz
     ```
 
     It is already in the PATH environment variable. So just verify the instalation with:

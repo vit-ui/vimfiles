@@ -18,6 +18,8 @@ u					: Undo
 Ctrl + r			: Redo
 %					: Jump between matching pairs of brackets () or {}
 gi					: Move to the last place you were in insert mode and enters insert mode
+dd                  : Clear line contents (leaves empty line)
+dl                  : Delete line entirely (default dd behavior)
 :Source				: Reloads your .vimrc configuration
 :Shortcuts    		: Open this help file in a vertical split
 :vsplit     	  	: Create vertical split
@@ -69,7 +71,7 @@ Ctrl+A / Ctrl+E     : Move cursor to beginning / end of line
 Alt+B / Alt+F			: Move backward/forward one word
 cd -                : Switch to previous working directory
 sudo !!             : Re-run last command with sudo(!! repeats last command)
-diff -u file1 file2	: Shows differences between two files(-U produces more readable output)
+diff -u file1 file2	: Shows differences between two files(-u produces more readable output)
 
 -- TERMINAL: RIPGREP --
 rg -l '"http"'		: List files with literal "http" import
