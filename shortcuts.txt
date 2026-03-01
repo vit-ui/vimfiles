@@ -2,6 +2,10 @@
 				        SHORTCUTS
 ============================================================
 
+------------------------------------------------------------
+						VIM
+------------------------------------------------------------
+
 -- VIM: PLUG (THE MANAGER) --
 :PlugInstall		: Installs plugins listed in .vimrc
 :PlugUpdate			: Updates all plugins
@@ -60,15 +64,25 @@ qq                  : Exit insert mode (same as <Esc>)
 \gq					: Reset Debugger
 :InstallDebugger <adapter_name>
 
--- LANGUAGE SPECIFIC --
+- VIM: MARKDOWN -
+:Preview			: Open rendered preview of current file in terminal split (glow)
+\mp					: Open rendered preview of current file in terminal split (glow)
 
-- VIM: GO -
+------------------------------------------------------------
+					LANGUAGE SPECIFIC 
+------------------------------------------------------------
+
+-- VIM: GO --
 \r					: Go run
 \t					: Go test
 :GoAddTags			: Add JSON tags to struct fields
 
-- TERMINAL: GO -
+-- TERMINAL: GO --
 go mod tidy 		: Clean up dependencies in go.mod/go.sum
+
+------------------------------------------------------------
+						TERMINAL
+------------------------------------------------------------
 
 -- TERMINAL: SHELL COMMANDS --
 mv old new	    	: Rename or move a file/directory
@@ -80,6 +94,9 @@ Alt+B / Alt+F		: Move backward/forward one word
 cd -                : Switch to previous working directory
 sudo !!             : Re-run last command with sudo(!! repeats last command)
 diff -u file1 file2	: Shows line-by-line differences between two files in unified format
+
+-- TERMINAL: ALIAS --
+shortcuts			: alias to 'cat ~/vimfiles/shortcuts.txt'
 
 -- TERMINAL: RIPGREP --
 rg -l '"http"'		: List files with literal "http" import

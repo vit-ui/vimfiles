@@ -10,8 +10,10 @@ set relativenumber  " Show distance to other lines
 " desable vi
 set nocompatible
 
-" flashes instead of beeping on error
-set visualbell
+set novisualbell
+set noerrorbells
+set t_vb=
+set belloff=all
 
 set cursorline
 highlight CursorLine ctermbg=darkgray cterm=none
@@ -84,8 +86,6 @@ set mouse=a
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
 
-
-
 " Portable Cursor Shape (WSL & Linux)
 " Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
 if &term =~ 'xterm' || &term =~ 'screen' || &term =~ '256color'
@@ -98,16 +98,40 @@ endif
 "   		      PLUGIN SPECIFIC CONFIG
 " ==========================================================
 
-let g:coc_global_extensions = ['coc-go', 'coc-json', 'coc-sql', 'coc-sh', 'coc-snippets', 'coc-tag']
+let g:coc_global_extensions = 
+	\[
+	\	'coc-go', 'coc-json', 'coc-sql', 
+	\	'coc-sh', 'coc-snippets', 'coc-tag',
+	\	'coc-markdownlint', 'coc-prettier'
+	\]
 
 " This sets semantic completion as priority and tags as low-priority fallback
 let g:coc_user_config = {
   \ "suggest.languageSourcePriority": 99,
   \ "coc.source.tag.priority": 1,
   \ "coc.source.tag.shortcut": "TAG",
-  \ "suggest.lowPrioritySourceLimit": 5
+  \ "suggest.lowPrioritySourceLimit": 5,
+  \
+  \ "prettier.printWidth": 80,
+  \ "prettier.tabWidth": 4,
+  \ "prettier.useTabs": v:true,
+  \ "prettier.proseWrap": "always",
+  \ "prettier.endOfLine": "lf",
+  \ "prettier.trailingComma": "es5",
+  \ "prettier.singleQuote": v:false,
+  \
+  \ "markdownlint.onOpen": v:true,
+  \ "markdownlint.onChange": v:true,
+  \ "markdownlint.onSave": v:true,
+  \ "markdownlint.config": {
+  \	  "default": v:true,
+  \   "MD033": { "allowed_elements": ["details", "summary", "b"] },
+  \	  "list-marker-space": { "ul_multi": 1, "ul_single": 1 },
+  \	  "ul-indent": { "indent": 4 }
   \ }
+\ }
 
+"
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
 
@@ -260,6 +284,12 @@ autocmd FileType go nmap <leader>t <Plug>(go-test)
 " ------------------ C Language Config ---------------------
 
 " nothing yet
+
+" -------------- Markdown Language Config -------------------
+
+autocmd FileType markdown nmap <leader>mp :terminal glow %<CR>
+command! Preview if &filetype ==# 'markdown' | terminal glow % 
+			\| else | echo "Preview is only available for markdown files" | endif
 
 " ==========================================================
 "   				CUSTOM COMMANDS

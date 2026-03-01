@@ -161,3 +161,4 @@ alias ..='cd ..'          # replaces your up(1) for the common case
 alias gs='git status'
 alias gl='git log --oneline --graph --decorate'
 alias watch='watch -n 2'  # default interval of 2s
+alias shortcuts='cat ~/vimfiles/shortcuts.txt'
