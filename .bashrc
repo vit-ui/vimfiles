@@ -156,6 +156,14 @@ TAB_SET=$(tabs -4)
 # Add it to the start of your PS1 to re-apply stops silently after every command
 PS1="\[$TAB_SET\]$PS1"
 
+git() {
+    command git "$@"
+    local exit_code=$?
+    echo ""
+    command git status
+    return $exit_code
+}
+
 # Useful aliases
 alias ..='cd ..'          # replaces your up(1) for the common case
 alias gs='git status'

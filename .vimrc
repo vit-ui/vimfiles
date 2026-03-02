@@ -10,10 +10,23 @@ set relativenumber  " Show distance to other lines
 " desable vi
 set nocompatible
 
+" no sounds or flashes on errors!
 set novisualbell
 set noerrorbells
 set t_vb=
 set belloff=all
+
+" This clears all values for selectmode. Vim has a "Select mode" 
+" that behaves like a modern word processor (typing replaces text).
+" By setting it to empty, you ensure Vim stays in its native
+" "Visual mode" when highlighting tex
+set selectmode=
+
+" Enable mouse support in all modes (allows scrolling)
+set mouse=a
+
+set foldmethod=expr
+set foldlevel=99
 
 set cursorline
 highlight CursorLine ctermbg=darkgray cterm=none
@@ -37,8 +50,6 @@ Plug 'tpope/vim-commentary'
 
 " Make braces, brackets, etc open a new empty line
 Plug 'jiangmiao/auto-pairs'
-
-Plug 'puremourning/vimspector'
 
 Plug 'ludovicchabant/vim-gutentags'
 
@@ -80,8 +91,6 @@ highlight StatusLine ctermbg=white ctermfg=black
 
 set showcmd
 
-" Enable mouse support in all modes (allows scrolling)
-set mouse=a
 
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
@@ -102,7 +111,8 @@ let g:coc_global_extensions =
 	\[
 	\	'coc-go', 'coc-json', 'coc-sql', 
 	\	'coc-sh', 'coc-snippets', 'coc-tag',
-	\	'coc-markdownlint', 'coc-prettier'
+	\	'coc-markdownlint', 'coc-prettier',
+	\	'@yaegassy/coc-marksman'
 	\]
 
 " This sets semantic completion as priority and tags as low-priority fallback
@@ -111,6 +121,7 @@ let g:coc_user_config = {
   \ "coc.source.tag.priority": 1,
   \ "coc.source.tag.shortcut": "TAG",
   \ "suggest.lowPrioritySourceLimit": 5,
+  \ "coc.preferences.fold.enable": v:true,
   \
   \ "prettier.printWidth": 80,
   \ "prettier.tabWidth": 4,
@@ -131,7 +142,11 @@ let g:coc_user_config = {
   \ }
 \ }
 
-"
+" Auto-calculate LSP fold markers silently for any file
+" Triggers on open, save, and whenever you return to Normal Mode
+" Only attempt to fold if CoC is initialized and the provider exists
+set foldexpr=coc#fold#foldexpr()
+
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
 
@@ -252,8 +267,16 @@ vnoremap <C-j> :m '>+1<CR>gv=gv
 " Map qq to <Esc> in insert mode
 inoremap qq <Esc>
 
+" jump to beginning/end of line in insert mode
+inoremap II <C-o>I
+inoremap <leader>I II
+
+inoremap AA <C-o>A
+inoremap <leader>A AA
+
 " some language shortcuts:
 " C / C++
+inoremap <leader>s std::
 inoremap ;; <Esc>g_a;   " append ; at end of line
 inoremap {{ <Esc>g_a{   " append { at end of line
 inoremap ,, <Esc>la,    " insert , after next character
