@@ -159,8 +159,14 @@ PS1="\[$TAB_SET\]$PS1"
 git() {
     command git "$@"
     local exit_code=$?
-    echo ""
-    command git status
+
+    # Check if the command is NOT status or help AND NOT empty
+    if [[ $exit_code -eq 0 && -n "$1" && "$1" != "status" && "$1" != "help" && "$*" != *"--help"* ]]; then
+        echo ""
+        echo "STATUS:"
+        command git status
+    fi
+
     return $exit_code
 }
 
@@ -170,3 +176,4 @@ alias gs='git status'
 alias gl='git log --oneline --graph --decorate'
 alias watch='watch -n 2'  # default interval of 2s
 alias shortcuts='cat ~/vimfiles/shortcuts.txt'
+alias vim='vim -O'

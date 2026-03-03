@@ -22,6 +22,9 @@ u					: Undo
 Ctrl-R				: Redo
 %					: Jump between matching pairs of brackets () or {}
 gi					: Move to the last place you were in insert mode and enters insert mode
+\cp / \cn			: Jump to previous/next CoC diagnostic (error/warning)
+\fr                 : Find all references to the symbol/link under the cursor
+\nf					: Shortcut for a new split. Just type the file path after
 :Source				: Reloads your .vimrc configuration
 :Shortcuts    		: Open this help file in a vertical split
 :vsplit     	  	: Create vertical split
@@ -43,6 +46,11 @@ dl                  : Delete line entirely (default dd behavior)
 space-J / space-K	: Add new line below / above without entering insert mode
 ctrl-J / ctrl-K		: Move current line(or selected block) down / up 
 *					: Highlight all occurrences of the word currently under the cursor
+zc                  : Close the fold under the cursor
+zo                  : Open the fold under the cursor
+za                  : Toggle the fold under the cursor
+zM                  : Close all folds in the file
+zR                  : Open all folds in the file
 :%s/old/new/gc      : Search and replace in whole file(adding c at the end asks confirmation on each match)
 :copen :cclose		: Open/Close Error window
 :cn :cp				: Jump to Next/Previous error

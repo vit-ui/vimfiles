@@ -25,11 +25,19 @@ set selectmode=
 " Enable mouse support in all modes (allows scrolling)
 set mouse=a
 
-set foldmethod=expr
+set foldmethod=manual
 set foldlevel=99
 
 set cursorline
 highlight CursorLine ctermbg=darkgray cterm=none
+
+autocmd BufWinLeave * silent! mkview
+autocmd BufWinEnter * silent! loadview
+
+set autoread
+
+" Optional: Force built-in 'new' to be vertical
+cabbrev new vnew
 
 " ==========================================================
 "	 				PLUGIN MANAGEMENT
@@ -91,6 +99,12 @@ highlight StatusLine ctermbg=white ctermfg=black
 
 set showcmd
 
+" make vertical the default for split view
+set diffopt+=vertical
+
+" Always open new window to the left
+autocmd WinNew * wincmd H
+set nosplitright
 
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
@@ -145,7 +159,7 @@ let g:coc_user_config = {
 " Auto-calculate LSP fold markers silently for any file
 " Triggers on open, save, and whenever you return to Normal Mode
 " Only attempt to fold if CoC is initialized and the provider exists
-set foldexpr=coc#fold#foldexpr()
+autocmd InsertLeave,BufWritePost * if CocHasProvider('foldingRange') | call CocActionAsync('fold') | endif
 
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
@@ -205,10 +219,20 @@ nnoremap <leader>o :call CocActionAsync('doHover')<CR>
 nmap <leader>ca <Plug>(coc-codeaction)
 
 nmap <leader>rn <Plug>(coc-rename)
+"
+" Navigation for CoC diagnostics (errors/warnings)
+nmap <silent> <leader>cp <Plug>(coc-diagnostic-prev)
+nmap <silent> <leader>cn <Plug>(coc-diagnostic-next)
+
+" Find references
+nmap <silent> <leader>fr <Plug>(coc-references)
 
 " ==========================================================
 "	 				GLOBAL KEYMAPS
 " ==========================================================
+
+" Fast mapping for vertical split + file path
+nnoremap <leader>nf :topleft vertical split<Space>
 
 " Clear search highlighting. remap <Esc> to <Esc><Esc> to make it faster
 nnoremap <Esc><Esc> :noh<CR>
@@ -276,10 +300,13 @@ inoremap <leader>A AA
 
 " some language shortcuts:
 " C / C++
+inoremap ;; <Esc>g_a;  
+" append ; at end of line
 inoremap <leader>s std::
-inoremap ;; <Esc>g_a;   " append ; at end of line
-inoremap {{ <Esc>g_a{   " append { at end of line
-inoremap ,, <Esc>la,    " insert , after next character
+" append { at end of line
+inoremap {{ <Esc>g_a{}<Esc>ha
+" insert , after next character
+inoremap ,, <Esc>la,    
 
 " Python
 inoremap :: <Esc>g_a:   " append : at end of line
@@ -311,9 +338,11 @@ autocmd FileType go nmap <leader>t <Plug>(go-test)
 " -------------- Markdown Language Config -------------------
 
 autocmd FileType markdown nmap <leader>mp :terminal glow %<CR>
-command! Preview if &filetype ==# 'markdown' | terminal glow % 
-			\| else | echo "Preview is only available for markdown files" | endif
-
+" command! Preview if &filetype ==# 'markdown' | terminal glow % 
+" 			\| else | echo "Preview is only available for markdown files" | endif
+command! Preview if &filetype ==# 'markdown' | 
+    \ execute "vertical topleft terminal glow " . expand("%") | 
+    \ else | echo "Preview is only available for markdown files" | endif
 " ==========================================================
 "   				CUSTOM COMMANDS
 " ==========================================================
