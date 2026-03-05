@@ -109,6 +109,15 @@ set nosplitright
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
 
+" sometimes I make w and q upercase. Now they(and variations) map to the correct command
+command! W :w
+command! Q :q
+command! Qa :qa
+command! QA :qa
+:cabbrev <expr> Q! getcmdtype()==':' && getcmdline()=='Q!' ? 'q!' : 'Q!'
+command Wq :wq
+command! Wa :wa
+
 " Portable Cursor Shape (WSL & Linux)
 " Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
 if &term =~ 'xterm' || &term =~ 'screen' || &term =~ '256color'

@@ -177,3 +177,5 @@ alias gl='git log --oneline --graph --decorate'
 alias watch='watch -n 2'  # default interval of 2s
 alias shortcuts='cat ~/vimfiles/shortcuts.txt'
 alias vim='vim -O'
+alias cdv='cd ~/vimfiles'
+alias evim='vim ~/vimfiles/shortcuts.txt ~/vimfiles/.bashrc ~/vimfiles/.vimrc'
