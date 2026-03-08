@@ -25,7 +25,6 @@ set selectmode=
 " Enable mouse support in all modes (allows scrolling)
 set mouse=a
 
-set foldmethod=manual
 set foldlevel=99
 
 set cursorline
@@ -60,6 +59,9 @@ Plug 'tpope/vim-commentary'
 Plug 'jiangmiao/auto-pairs'
 
 Plug 'ludovicchabant/vim-gutentags'
+
+Plug 'pseewald/vim-anyfold'
+Plug 'Konfekt/FastFold'
 
 call plug#end()
 
@@ -109,14 +111,7 @@ set nosplitright
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
 
-" sometimes I make w and q upercase. Now they(and variations) map to the correct command
-command! W :w
-command! Q :q
-command! Qa :qa
-command! QA :qa
-:cabbrev <expr> Q! getcmdtype()==':' && getcmdline()=='Q!' ? 'q!' : 'Q!'
-command Wq :wq
-command! Wa :wa
+autocmd Filetype * AnyFoldActivate
 
 " Portable Cursor Shape (WSL & Linux)
 " Uses 2 for Block, 4 for Underline, 6 for Beam (Steady variants)
@@ -144,7 +139,6 @@ let g:coc_user_config = {
   \ "coc.source.tag.priority": 1,
   \ "coc.source.tag.shortcut": "TAG",
   \ "suggest.lowPrioritySourceLimit": 5,
-  \ "coc.preferences.fold.enable": v:true,
   \
   \ "prettier.printWidth": 80,
   \ "prettier.tabWidth": 4,
@@ -168,7 +162,7 @@ let g:coc_user_config = {
 " Auto-calculate LSP fold markers silently for any file
 " Triggers on open, save, and whenever you return to Normal Mode
 " Only attempt to fold if CoC is initialized and the provider exists
-autocmd InsertLeave,BufWritePost * if CocHasProvider('foldingRange') | call CocActionAsync('fold') | endif
+" autocmd InsertLeave,BufWritePost * if CocHasProvider('foldingRange') | call CocActionAsync('fold') | endif
 
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
@@ -307,18 +301,23 @@ inoremap <leader>I II
 inoremap AA <C-o>A
 inoremap <leader>A AA
 
+" Open netrw
+nnoremap <leader>ft :Vex<CR>
+
+
 " some language shortcuts:
 " C / C++
-inoremap ;; <Esc>g_a;  
+inoremap ;; <Esc>g_a;
 " append ; at end of line
 inoremap <leader>s std::
 " append { at end of line
 inoremap {{ <Esc>g_a{}<Esc>ha
 " insert , after next character
-inoremap ,, <Esc>la,    
+inoremap ,, <Esc>la,
 
 " Python
-inoremap :: <Esc>g_a:   " append : at end of line
+" append : at end of line
+inoremap :: <Esc>g_a:
 
 " ==========================================================
 "   			  LANGUAGE SPECIFIC CONFIG
@@ -417,3 +416,12 @@ function! InstallDebugger(adapter)
 endfunction
 
 command! -nargs=1 InstallDebugger call InstallDebugger(<f-args>)
+"
+" sometimes I make w and q upercase. Now they(and variations) map to the correct command
+command! W :w
+command! Q :q
+command! Qa :qa
+command! QA :qa
+cabbrev <expr> Q! getcmdtype()==':' && getcmdline()=='Q!' ? 'q!' : 'Q!'
+command! Wq :wq
+command! Wa :wa

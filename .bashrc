@@ -72,10 +72,11 @@ xterm*|rxvt*)
     ;;
 esac
 
+alias ls=' -A'
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
+    alias ls='ls --color=auto -1A'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -87,10 +88,6 @@ fi
 # colored GCC warnings and errors
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -170,12 +167,25 @@ git() {
     return $exit_code
 }
 
+vim() {
+	if [ $# -eq 0 ]; then
+		command vim .
+	else
+		command vim -O "$@"
+	fi
+}
+
 # Useful aliases
 alias ..='cd ..'          # replaces your up(1) for the common case
 alias gs='git status'
 alias gl='git log --oneline --graph --decorate'
+alias gcp='git commit && git push'
 alias watch='watch -n 2'  # default interval of 2s
 alias shortcuts='cat ~/vimfiles/shortcuts.txt'
-alias vim='vim -O'
 alias cdv='cd ~/vimfiles'
 alias evim='vim ~/vimfiles/shortcuts.txt ~/vimfiles/.bashrc ~/vimfiles/.vimrc'
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'

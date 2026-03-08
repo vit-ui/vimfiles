@@ -76,6 +76,16 @@ qq                  : Exit insert mode (same as <Esc>)
 :Preview			: Open rendered preview of current file in terminal split (glow)
 \mp					: Open rendered preview of current file in terminal split (glow)
 
+
+- VIM: File Tree -
+Entry				: Open the selected file or directory.
+-					: Go up one directory level.
+i					: Cycle through different view modes (thin, long, wide, and tree).
+D					: Delete the file under the cursor.
+R					: Rename the file under the cursor.
+gn					: Makes the selected directory the "top" of the tree.
+p					: Previews the file (opens it in a small window without leaving the tree).
+
 ------------------------------------------------------------
 					LANGUAGE SPECIFIC 
 ------------------------------------------------------------
