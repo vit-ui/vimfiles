@@ -60,6 +60,8 @@ Plug 'jiangmiao/auto-pairs'
 
 Plug 'ludovicchabant/vim-gutentags'
 
+Plug 'puremourning/vimspector'
+
 Plug 'pseewald/vim-anyfold'
 Plug 'Konfekt/FastFold'
 
