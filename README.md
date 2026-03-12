@@ -1,3 +1,5 @@
+<!-- markdownlint-disable-file -->
+<!-- markdownlint-disable-file -->
 # Vim & Go Workspace
 
 My personal configuration for development on WSL/Linux.
@@ -321,14 +323,17 @@ up 3 # same as cd ../../..
     vim a.go b.go  # opens both files in vertical splits
 ```
 
-- Aliases: | Alias | Expands to | Description |
-  |-------|-----------|-------------| | `..` | `cd ..` | Go up one directory | |
-  `browser`| `$BROWSER` | opens brave on wsl and the default browser on linux |
-  | `gs` | `git status` | | | `gl` | `git log --oneline --graph --decorate` |
-  Compact visual git log | | `watch` | `watch -n 2` | Repeat a command every 2
-  seconds by default |
+### Aliases:
 
-    ### Quick Config Access
+    | Alias     | Expands to                             | Description                                         |
+    | --------- | -------------------------------------- | --------------------------------------------------- |
+    | `..`      | `cd ..`                                | Go up one directory                                 |
+    | `browser` | `$BROWSER`                             | opens brave on wsl and the default browser on linux |
+    | `gs`      | `git status`                           |                                                     |
+    | `gl`      | `git log --oneline --graph --decorate` | Compact visual git log                              |
+    | `watch`   | `watch -n 2`                           | Repeat a command every 2 seconds by default         |
+
+### Quick Config Access
 
 | Command     | Description                                            |
 | ----------- | ------------------------------------------------------ |
