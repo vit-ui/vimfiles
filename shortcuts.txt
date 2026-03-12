@@ -15,6 +15,11 @@
 \h \j \k \l			: Jump Left, Down, Up, Right
 \v					: Reloads your .vimrc configuration
 \tf					: Toggle between current and last file you had open
+\cp / \cn			: Jump to previous/next CoC diagnostic (error/warning)
+\fr                 : Find all references to the symbol/link under the cursor
+\nf					: Shortcut for a new split. Just type the file path after
+\ft 				: Open file tree (netrw)
+<Esc><Esc>          : Clear search highlighting
 Ctrl-W then =		: Make all splits equal size
 ; / ,				: Repeat f or t command forward/backward
 + / -         		: Resize window width (+5 / -5)
@@ -22,12 +27,10 @@ u					: Undo
 Ctrl-R				: Redo
 %					: Jump between matching pairs of brackets () or {}
 gi					: Move to the last place you were in insert mode and enters insert mode
-\cp / \cn			: Jump to previous/next CoC diagnostic (error/warning)
-\fr                 : Find all references to the symbol/link under the cursor
-\nf					: Shortcut for a new split. Just type the file path after
 :Source				: Reloads your .vimrc configuration
 :Shortcuts    		: Open this help file in a vertical split
 :vsplit     	  	: Create vertical split
+:new                : Open new vertical split (remapped from horizontal)
 :q            		: Close current split
 
 -- VIM: CODE EDITING & LSP (Plugin-Powered) --
@@ -57,7 +60,10 @@ zR                  : Open all folds in the file
 :Format				: Manually trigger LSP formatting
 
 -- VIM: INSERT MODE SHORTCUTS --
-qq                  : Exit insert mode (same as <Esc>)
+qq					: Exit insert mode (same as <Esc>)
+II					: Jump to beginning of line in insert mode
+AA					: Jump to end of line in insert mode
+\s					: Insert std:: at cursor (C/C++)
 ;;                  : Append ; at end of line 
 {{                  : Append { at end of line
 ,,                  : Insert , after next character
@@ -115,6 +121,9 @@ diff -u file1 file2	: Shows line-by-line differences between two files in unifie
 
 -- TERMINAL: ALIAS --
 shortcuts			: alias to 'cat ~/vimfiles/shortcuts.txt'
+gcp                 : git commit && git push
+cdv                 : cd ~/vimfiles
+evim                : Open shortcuts.txt, .bashrc and .vimrc in splits for editing
 
 -- TERMINAL: RIPGREP --
 rg -l '"http"'		: List files with literal "http" import

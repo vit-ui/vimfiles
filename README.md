@@ -25,14 +25,25 @@ sudo apt install universal-ctags
 
 Some useful tools(use is in `shortcuts.txt`):
 
+- ripgrep(rg) - a fast file content search tool that replaces grep for code
+
 ```bash
 sudo apt install ripgrep
+```
+
+- GitHub CLI(gh) - a command-line interface for GitHub operations
+
+Use `webi` to get the latest version:
+
+```bash
 curl -sS https://webi.sh/gh | sh
 ```
 
-- ripgrep(rg) - a fast file content search tool that replaces grep for code
-- GitHub CLI(gh) - a command-line interface for GitHub operations(installed with
-  `webi` to get the latest version)
+Via apt (auto-updates with `apt upgrade`):
+
+```bash
+sudo apt install gh
+```
 
 For instructions on language instalations go to
 [Specific Language Setup](#specific-language-setup) section.
@@ -192,7 +203,8 @@ before proceeding
 <details>
 <summary><b>Go Setup</b></summary>
 
-0. To install go: [Download](https://go.dev/dl/) the latest `.tar.gz` from and run:
+0. To install go: [Download](https://go.dev/dl/) the latest `.tar.gz` from and
+   run:
 
     ```bash
     sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go_XX.X.tar.gz
@@ -236,8 +248,23 @@ before proceeding
 <details>
 <summary><b>Markdown Setup</b></summary>
 
-You must install [glow](https://github.com/charmbracelet/glow "glow repo")
-(terminal markdown renderer - displays formatted markdown in the terminal)
+You must install [glow](https://github.com/charmbracelet/glow "glow repo"): it
+is a terminal markdown renderer. It displays formmated markdown in the terminal.
+
+Via apt (auto-updates with `apt upgrade`):
+
+```bash
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
+    sudo apt update && sudo apt install glow
+```
+
+Via webi (does not auto-update, re-run to update):
+
+```bash
+    curl -sS https://webi.sh/glow | sh
+```
 
 Open any `.md` file and press `\mp` or `:Preview` to open a rendered preview in
 a terminal split inside Vim.
@@ -283,12 +310,32 @@ up 3 # same as cd ../../..
 - `$HISTTIMEFORMAT` - Adds timestamps to shell history output. Run `history` to
   see them.
 
+- `git()` - wraps git to automatically print `git status` after every successful
+  command except `status` and `help`. To bypass: `command git <args>`.
+
+- `vim()` - no arguments opens the current directory in netrw. Multiple file
+  arguments open in vertical splits.
+
+```bash
+    vim            # opens current directory in netrw
+    vim a.go b.go  # opens both files in vertical splits
+```
+
 - Aliases: | Alias | Expands to | Description |
   |-------|-----------|-------------| | `..` | `cd ..` | Go up one directory | |
   `browser`| `$BROWSER` | opens brave on wsl and the default browser on linux |
   | `gs` | `git status` | | | `gl` | `git log --oneline --graph --decorate` |
   Compact visual git log | | `watch` | `watch -n 2` | Repeat a command every 2
   seconds by default |
+
+    ### Quick Config Access
+
+| Command     | Description                                            |
+| ----------- | ------------------------------------------------------ |
+| `cdv`       | Jump to `~/vimfiles`                                   |
+| `evim`      | Open `.vimrc`, `.bashrc` and `shortcuts.txt` in splits |
+| `shortcuts` | Print `shortcuts.txt` to the terminal                  |
+| `gcp`       | Commit and push in one step                            |
 
 ---
 
