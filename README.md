@@ -161,7 +161,7 @@ Generated `.vimspector.json`:
         "program": "${program}",
         "args": [],
         "cwd": "${workspaceRoot}",
-        "env": {}
+        "env": {},
         "mode": "debug"
       }
     }
