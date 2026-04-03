@@ -427,3 +427,6 @@ command! QA :qa
 cabbrev <expr> Q! getcmdtype()==':' && getcmdline()=='Q!' ? 'q!' : 'Q!'
 command! Wq :wq
 command! Wa :wa
+command! Wqa :wqa
+command! WQa :wqa
+command! WQA :wqa
