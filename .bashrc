@@ -158,7 +158,7 @@ git() {
     local exit_code=$?
 
     # Check if the command is NOT status or help AND NOT empty
-    if [[ $exit_code -eq 0 && -n "$1" && "$1" != "status" && "$1" != "help" && "$*" != *"--help"* ]]; then
+    if [[ $exit_code -eq 0 && -n "$1" && "$1" != "status" && "$1" != "help" && "$*" != *"--help"* && "$1" != "pull"]]; then
         echo ""
         echo "STATUS:"
         command git status
