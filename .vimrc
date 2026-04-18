@@ -142,7 +142,7 @@ let g:coc_user_config = {
   \ "coc.source.tag.shortcut": "TAG",
   \ "suggest.lowPrioritySourceLimit": 5,
   \
-  \ "prettier.printWidth": 80,
+  \ "prettier.printWidth": 100,
   \ "prettier.tabWidth": 4,
   \ "prettier.useTabs": v:true,
   \ "prettier.proseWrap": "always",
