@@ -1,4 +1,3 @@
-g!-- markdownlint-disable-file -->
 <!-- markdownlint-disable-file -->
 # Vim & Go Workspace
 
