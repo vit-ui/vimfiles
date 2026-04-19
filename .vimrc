@@ -1,4 +1,4 @@
-" ==========================================================
+g ==========================================================
 "	 				GLOBAL DEFINITIONS
 " ==========================================================
 
@@ -64,6 +64,8 @@ Plug 'puremourning/vimspector'
 
 Plug 'pseewald/vim-anyfold'
 Plug 'Konfekt/FastFold'
+
+Plug 'tomasr/molokai'
 
 call plug#end()
 

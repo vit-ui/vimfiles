@@ -1,4 +1,4 @@
-<!-- markdownlint-disable-file -->
+g!-- markdownlint-disable-file -->
 <!-- markdownlint-disable-file -->
 # Vim & Go Workspace
 
@@ -50,7 +50,17 @@ sudo apt install gh
 For instructions on language instalations go to
 [Specific Language Setup](#specific-language-setup) section.
 
-### 1) Link the Configuration
+### 1) Vim version and Node.js
+
+The default Vim shipped by Ubuntu 22.04 is too old for coc.nvim and vim-go.
+Upgrade it and install Node.js before running `:PlugInstall`:
+
+```bash
+sudo add-apt-repository ppa:jonathonf/vim && sudo apt update && sudo apt install vim
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt install -y nodejs
+```
+
+### 2) Link the Configuration
 
 Vim and Bash look for `.vimrc` and `.bashrc` respectively in your home
 directory. Link them from this repo:
@@ -65,14 +75,14 @@ source ~/.bashrc
 > your configuration across different machines with a simple `git pull` or
 > `git push`.
 
-### 2) Install vim-plug (Plugin Manager)
+### 3) Install vim-plug (Plugin Manager)
 
 ```bash
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 ```
 
-### 3) Install Plugins
+### 4) Install Plugins
 
 Open Vim and run:
 
