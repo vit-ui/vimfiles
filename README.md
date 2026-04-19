@@ -57,6 +57,9 @@ Upgrade it and install Node.js before running `:PlugInstall`:
 
 ```bash
 sudo add-apt-repository ppa:jonathonf/vim && sudo apt update && sudo apt install vim
+```
+
+```bash
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt install -y nodejs
 ```
 
