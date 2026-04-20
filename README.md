@@ -300,6 +300,11 @@ See [Debugging](#debugging-vimspector--dap) for how this works.
 
 </details>
 
+---
+
+<details>
+<summary><b>Markdown</b></summary>
+
 ### Requirements
 
 - glow (terminal Markdown renderer)
