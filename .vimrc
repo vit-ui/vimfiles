@@ -115,6 +115,8 @@ set nosplitright
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
 
+set colorcolumn=101
+
 autocmd Filetype * AnyFoldActivate
 
 " Portable Cursor Shape (WSL & Linux)
@@ -361,6 +363,9 @@ inoremap <leader>A AA
 " Open netrw
 nnoremap <leader>ft :Vex<CR>
 
+tnoremap <Esc><Esc> <C-\><C-n>
+
+nnoremap <leader>w :w<CR>
 
 " some language shortcuts:
 " C / C++
@@ -416,7 +421,7 @@ command! Preview if &filetype ==# 'markdown' |
 " Format the current buffer
 command! -nargs=0 Format :call CocActionAsync('format')
 
-command! Shortcuts vsplit ~/vimfiles/shortcuts.txt
+command! Shortcuts vsplit +setlocal\ readonly\ nomodifiable ~/vimfiles/shortcuts.txt
 
 " Reload your config
 command! Source source $MYVIMRC

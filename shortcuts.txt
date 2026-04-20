@@ -1,148 +1,304 @@
 ============================================================
-				        SHORTCUTS
+                         VIM
 ============================================================
 
 ------------------------------------------------------------
-						VIM
+  PLUGIN MANAGEMENT
 ------------------------------------------------------------
 
--- VIM: PLUG (THE MANAGER) --
-:PlugInstall		: Installs plugins listed in .vimrc
-:PlugUpdate			: Updates all plugins
-:PlugClean			: Removes plugins no longer in .vimrc
-
--- VIM: NAVIGATION & UI (Normal Mode) --
-\h \j \k \l			: Jump Left, Down, Up, Right
-\v					: Reloads your .vimrc configuration
-\tf					: Toggle between current and last file you had open
-\cp / \cn			: Jump to previous/next CoC diagnostic (error/warning)
-\fr                 : Find all references to the symbol/link under the cursor
-\nf					: Shortcut for a new split. Just type the file path after
-\ft 				: Open file tree (netrw)
-<Esc><Esc>          : Clear search highlighting
-Ctrl-W then =		: Make all splits equal size
-; / ,				: Repeat f or t command forward/backward
-+ / -         		: Resize window width (+5 / -5)
-u					: Undo
-Ctrl-R				: Redo
-%					: Jump between matching pairs of brackets () or {}
-gi					: Move to the last place you were in insert mode and enters insert mode
-:Source				: Reloads your .vimrc configuration
-:Shortcuts    		: Open this help file in a vertical split
-:vsplit     	  	: Create vertical split
-:new                : Open new vertical split (remapped from horizontal)
-:q            		: Close current split
-
--- VIM: CODE EDITING & LSP (Plugin-Powered) --
-\d					: Jump INTO Definition
-\b					: Jump BACK from Definition 
-\o					: Open Documentation for word under cursor (LSP)
-\rn					: Rename variable project-wide (Global)
-\ca					: Open CoC Code Actions (fixes/suggestions)
-Tab					: Select CoC autocomplete suggestion
-ci<char>            : Change Inside delimiter (e.g. ci" replaces text inside quotes)
-di<char>            : Delete Inside delimiter (e.g. di" deletes text inside quotes)
-gcc           		: Comment/Uncomment current line (Commentary plugin)
-gc (in visual mode)	: Comment/Uncomment selection (Commentary plugin)
-dd                  : Clear line contents (leaves empty line)
-dl                  : Delete line entirely (default dd behavior)
-space-J / space-K	: Add new line below / above without entering insert mode
-ctrl-J / ctrl-K		: Move current line(or selected block) down / up 
-*					: Highlight all occurrences of the word currently under the cursor
-zc                  : Close the fold under the cursor
-zo                  : Open the fold under the cursor
-za                  : Toggle the fold under the cursor
-zM                  : Close all folds in the file
-zR                  : Open all folds in the file
-:%s/old/new/gc      : Search and replace in whole file(adding c at the end asks confirmation on each match)
-:copen :cclose		: Open/Close Error window
-:cn :cp				: Jump to Next/Previous error
-:Format				: Manually trigger LSP formatting
-
--- VIM: INSERT MODE SHORTCUTS --
-qq					: Exit insert mode (same as <Esc>)
-II					: Jump to beginning of line in insert mode
-AA					: Jump to end of line in insert mode
-\s					: Insert std:: at cursor (C/C++)
-;;                  : Append ; at end of line 
-{{                  : Append { at end of line
-,,                  : Insert , after next character
-::                  : Append : at end of line
-
--- VIM: DEBUGGER --
-\gb					: Toggle breakpoint
-\gc					: Start / Continue debugging
-\gs					: Stop debugging session
-\gr					: Restart debugging
-\gn	\gi \go			: Step over / Step into / Step out
-\gq					: Reset Debugger
-:InstallDebugger <adapter_name>
-
-- VIM: MARKDOWN -
-:Preview			: Open rendered preview of current file in terminal split (glow)
-\mp					: Open rendered preview of current file in terminal split (glow)
-
-
-- VIM: File Tree -
-Entry				: Open the selected file or directory.
--					: Go up one directory level.
-i					: Cycle through different view modes (thin, long, wide, and tree).
-D					: Delete the file under the cursor.
-R					: Rename the file under the cursor.
-gn					: Makes the selected directory the "top" of the tree.
-p					: Previews the file (opens it in a small window without leaving the tree).
+:PlugInstall            Install all plugins listed in .vimrc
+:PlugUpdate             Update all installed plugins to latest version
+:PlugClean              Remove plugins that are no longer listed in .vimrc
 
 ------------------------------------------------------------
-					LANGUAGE SPECIFIC 
+  NAVIGATION & UI
 ------------------------------------------------------------
 
--- VIM: GO --
-\r					: Go run
-\t					: Go test
-:GoAddTags			: Add JSON tags to struct fields
+\h \j \k \l             Move between splits (left, down, up, right)
+\v                      Reload .vimrc configuration
+\w                      Save current file
+\tf                     Toggle between current and last open file
+<Esc><Esc>              Clear search highlighting
+Ctrl-W =                Make all splits equal size
++ / -                   Resize current split width (+5 / -5 columns)
+; / ,                   Repeat last f or t motion forward / backward
+%                       Jump between matching bracket pairs () or {}
+gf                      Open the file whose path is under the cursor.
+                        Works with relative and absolute paths.
+gi                      Go to last insert position and enter insert mode
+u                       Undo
+Ctrl-R                  Redo
+G                       Go to end of file (centered)
+n / N                   Jump to next / previous search match (centered)
 
--- TERMINAL: GO --
-go mod tidy 		: Clean up dependencies in go.mod/go.sum
+:Source                 Reload .vimrc (same as \v)
+:Shortcuts              Open this file in a vertical split
+:vsplit                 Create a vertical split
+:new                    Open a new vertical split (remapped from horizontal)
+:q                      Close current split
+
+\nf                     Begin a new vertical split — type file path after
+\ft                     Open file tree (netrw)
+
+zc                      Close fold under cursor
+zo                      Open fold under cursor
+za                      Toggle fold under cursor
+zM                      Close all folds in the file
+zR                      Open all folds in the file
 
 ------------------------------------------------------------
-						TERMINAL
+  CODE EDITING & LSP
 ------------------------------------------------------------
 
--- TERMINAL: SHELL COMMANDS --
-mv old new	    	: Rename or move a file/directory
-cp old new			: Copy a file
-rm file 	    	: Delete a file
-Ctrl+R              : Reverse history search (type any part of a past command)
-Ctrl+A / Ctrl+E     : Move cursor to beginning / end of line
-Alt+B / Alt+F		: Move backward/forward one word
-cd -                : Switch to previous working directory
-sudo !!             : Re-run last command with sudo(!! repeats last command)
-diff -u file1 file2	: Shows line-by-line differences between two files in unified format
+\d                      Jump into the definition of symbol under cursor
+\b                      Jump back from definition
+\o                      Open hover documentation for symbol under cursor
+\rn                     Rename symbol project-wide
+\ca                     Open code actions menu (fixes and suggestions)
+\cp / \cn               Jump to previous / next diagnostic (error or warning)
+\fr                     Find all references to symbol under cursor
 
--- TERMINAL: ALIAS --
-shortcuts			: alias to 'cat ~/vimfiles/shortcuts.txt'
-gcp                 : git commit && git push
-cdv                 : cd ~/vimfiles
-evim                : Open shortcuts.txt, .bashrc and .vimrc in splits for editing
+Tab                     Confirm currently highlighted autocomplete suggestion
+ci<char>                Change inside delimiter  e.g. ci" replaces text in quotes
+di<char>                Delete inside delimiter  e.g. di" deletes text in quotes
+gcc                     Comment / uncomment current line
+gc (visual mode)        Comment / uncomment selected block
+*                       Highlight all occurrences of word under cursor
 
--- TERMINAL: RIPGREP --
-rg -l '"http"'		: List files with literal "http" import
-rg -t go "func"		: Search "func" only inside .go files
-rg -i "text"		: Case-insensitive search
-rg --hidden "str"	: Search including hidden files (like .vimrc)
-rg -t sql "text"	: Search only inside .sql files
+dd                      Clear line contents (leaves empty line)
+dl                      Delete line entirely (default dd behavior)
+space-J / space-K       Add new line below / above without entering insert mode
+Ctrl-J / Ctrl-K         Move current line or selected block down / up
 
--- TERMINAL: GIT --
+:%s/old/new/gc          Search and replace in whole file
+                        (c at the end asks confirmation on each match)
+
+:copen / :cclose        Open / close the error list window
+:cn / :cp               Jump to next / previous error in the list
+:Format                 Manually trigger formatter for current file
+
+------------------------------------------------------------
+  INSERT MODE
+------------------------------------------------------------
+
+qq                      Exit insert mode (same as <Esc>)
+II                      Jump to beginning of line
+AA                      Jump to end of line
+,,                      Insert comma after next character
+::                      Append colon at end of line
+
+------------------------------------------------------------
+  DEBUGGER
+------------------------------------------------------------
+
+\gb                     Toggle breakpoint on current line
+\gc                     Launch debug session / continue after breakpoint
+\gn                     Step over (execute current line, stay at same level)
+\gi                     Step into (follow execution into function call)
+\go                     Step out (finish current function, return to caller)
+\gs                     Stop current debug session
+\gr                     Restart debug session
+\gq                     Hard reset Vimspector (closes all debug windows)
+
+:InstallDebugger <name> Set up debugger for current project — run from project
+                        root with vim . open. Creates .vimspector.json.
+                        Example: :InstallDebugger delve
+
+<Esc><Esc>              Exit terminal mode back to normal mode
+                        (works inside :terminal and Vimspector panels)
+
+------------------------------------------------------------
+  FILE TREE (netrw)
+------------------------------------------------------------
+
+\ft                     Open file tree in vertical split
+Enter                   Open selected file or enter directory
+-                       Go up one directory level
+i                       Cycle view modes (thin, long, wide, tree)
+D                       Delete file under cursor
+R                       Rename file under cursor
+gn                      Set selected directory as tree root
+p                       Preview file without leaving tree
+
+------------------------------------------------------------
+  MARKDOWN
+------------------------------------------------------------
+
+\mp                     Open rendered preview in a terminal split (glow)
+:Preview                Same as \mp
+
+============================================================
+                    LANGUAGE SPECIFIC
+============================================================
+
+------------------------------------------------------------
+  GO
+------------------------------------------------------------
+
+\r                      Run current file
+\t                      Run tests
+:GoAddTags              Add JSON struct tags to Go struct fields
+
+------------------------------------------------------------
+  PYTHON
+------------------------------------------------------------
+
+\r                      Run current file with Python 3
+
+------------------------------------------------------------
+  C / C++
+------------------------------------------------------------
+
+;;                      Append semicolon at end of current line
+\s                      Insert std:: at cursor position
+{{                      Append opening brace at end of line
+,,                      Insert comma after next character
+
+============================================================
+                       TERMINAL
+============================================================
+
+------------------------------------------------------------
+  ALIASES & FUNCTIONS
+------------------------------------------------------------
+
+..                      cd ..
+shortcuts               Open shortcuts.txt in less for reading
+cdv                     cd ~/vimfiles
+evim                    Open .vimrc, .bashrc and shortcuts.txt in splits
+gcp                     git commit && git push in one step
+gs                      git status
+gl                      git log --oneline --graph --decorate
+watch                   watch -n 2 (repeat command every 2 seconds)
+browser                 Open Brave (WSL) or default browser (Linux)
+ll                      ls -alF (long format, all files)
+la                      ls -A (all files, no details)
+l                       ls -CF
+history                 Pipe history output through less for scrollable reading
+reload                  source ~/.bashrc — apply bashrc changes to current session
+
+mkcd <dir>              Create directory and cd into it immediately
+up [n]                  Go up N directories  e.g. up 3 = cd ../../..
+git()                   Wraps git to print status after every successful
+                        command except status, help, and pull.
+                        Bypass with: command git <args>
+vim()                   No arguments opens current directory in netrw.
+                        Multiple arguments open files in vertical splits.
+extract <file>          Extract any archive — handles .tar.gz, .tar.bz2,
+                        .zip, and .gz automatically
+
+------------------------------------------------------------
+  SHELL COMMANDS
+------------------------------------------------------------
+
+mv old new              Rename or move a file or directory
+cp old new              Copy a file
+rm file                 Delete a file
+diff -u file1 file2     Show line-by-line differences between two files
+                        in unified format (- removed, + added)
+Ctrl+R                  Reverse history search — type any part of a past command
+Ctrl+A / Ctrl+E         Move cursor to beginning / end of line
+Alt+B / Alt+F           Move backward / forward one word
+cd -                    Switch to previous working directory
+sudo !!                 Re-run last command with sudo
+                        !! expands to the last command
+
+------------------------------------------------------------
+  GIT
+------------------------------------------------------------
+
+  -- SETUP --
+
+git config --global user.name "Name"
+                        Set the name attached to all your commits globally
+git config --global user.email "email"
+                        Set the email attached to all your commits globally
+git config --global pull.rebase true
+                        Make git pull use rebase instead of merge by default,
+                        keeping history linear without extra merge commits
+
+  -- STAGING & COMMITTING --
+
+git status              Show which files are modified, staged, or untracked
+git add <file>          Stage a specific file for the next commit
+git add .               Stage all changed files in the current directory
+git diff                Show changes in working directory that are not yet staged
+git diff --staged       Show changes that are staged but not yet committed
+git commit -m "msg"     Create a commit with a message
+git commit -am "msg"    Stage all tracked files and commit in one step
+git commit --amend      Add staged changes to the previous commit or edit
+                        its message. Opens editor unless combined with --no-edit
 git commit --amend --no-edit
-git config --global user.name "Vitor"
-git config --global user.email "your@email.com"
+                        Add staged changes to the previous commit without
+                        changing the commit message
 
--- TERMINAL: GITHUB CLI --
-gh auth login		: Authenticate with your GitHub account
-gh repo clone [repo]: Clone a repository locally
-gh pr create		: Create a new pull request from current branch
-gh pr list			: List open pull requests in current repo
-gh issue list		: List open issues in the repository
-gh browse			: Open the current repository in your browser
+  -- HISTORY & UNDOING --
+
+git log --oneline --graph --decorate
+                        Show compact visual commit history with branch info
+                        (aliased as gl)
+git stash               Temporarily save uncommitted changes to a stack so
+                        you can work on something else without committing
+git stash pop           Restore the most recently stashed changes back to
+                        your working directory and remove them from the stack
+git stash list          Show all stashed changesets with their index numbers
+git restore <file>      Discard uncommitted changes to a file, reverting it
+                        to the last committed state. Cannot be undone.
+git reset HEAD <file>   Unstage a file — removes it from the next commit
+                        but keeps your changes in the working directory
+git revert <commit>     Undo a commit safely by creating a new commit that
+                        reverses the changes. Does not rewrite history —
+                        safe to use on commits already pushed to remote.
+git reset --hard <commit>
+                        Reset branch to a specific commit and discard all
+                        changes after it. Rewrites history — destructive,
+                        do not use on commits already pushed to remote.
+
+  -- BRANCHES --
+
+git branch              List all local branches
+git branch <name>       Create a new branch without switching to it
+git checkout <branch>   Switch to an existing branch
+git checkout -b <branch>
+                        Create a new branch and switch to it immediately
+git merge <branch>      Merge specified branch into current branch,
+                        creating a merge commit if histories have diverged
+git rebase <branch>     Replay commits from current branch on top of the
+                        specified branch for a linear history without
+                        merge commits
+
+  -- REMOTE --
+
+git fetch               Download changes from remote without merging them
+                        into your current branch. Safe to run anytime.
+git pull                Fetch and integrate remote changes into current branch
+git push                Upload local commits to the remote repository
+git remote -v           Show the URLs of all configured remote repositories
+git clone <url>         Create a local copy of a remote repository
+git cherry-pick <commit>
+                        Apply a specific commit from any branch onto the
+                        current branch without merging the whole branch
+
+------------------------------------------------------------
+  GITHUB CLI
+------------------------------------------------------------
+
+gh auth login           Authenticate with your GitHub account
+gh repo clone <repo>    Clone a repository to your local machine
+gh pr create            Create a pull request from your current branch
+gh pr list              List open pull requests in the current repository
+gh issue list           List open issues in the current repository
+gh browse               Open the current repository in your browser
+
+------------------------------------------------------------
+  RIPGREP
+------------------------------------------------------------
+
+rg "text"               Search for text recursively in current directory
+rg -l "text"            List only the filenames that contain a match
+rg -t go "text"         Search only inside files of a specific type
+                        e.g. go, py, sh, sql, md
+rg -i "text"            Case-insensitive search
+rg --hidden "text"      Include hidden files in search (e.g. .vimrc, .bashrc)
 
 ============================================================

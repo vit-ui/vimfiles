@@ -176,15 +176,27 @@ vim() {
 	fi
 }
 
+extract() {
+  case "$1" in
+    *.tar.gz)  tar -xzf "$1" ;;
+    *.tar.bz2) tar -xjf "$1" ;;
+    *.zip)     unzip "$1"    ;;
+    *.gz)      gunzip "$1"   ;;
+    *)         echo "Unknown format: $1" ;;
+  esac
+}
+
 # Useful aliases
 alias ..='cd ..'          # replaces your up(1) for the common case
 alias gs='git status'
 alias gl='git log --oneline --graph --decorate'
 alias gcp='git commit && git push'
 alias watch='watch -n 2'  # default interval of 2s
-alias shortcuts='cat ~/vimfiles/shortcuts.txt'
+alias shortcuts='less ~/vimfiles/shortcuts.txt'
 alias cdv='cd ~/vimfiles'
 alias evim='vim ~/vimfiles/shortcuts.txt ~/vimfiles/.bashrc ~/vimfiles/.vimrc'
+alias history='history | less'
+alias reload='source ~/.bashrc'
 
 # some more ls aliases
 alias ll='ls -alF'
