@@ -30,13 +30,13 @@ Vimspector.
 
 ### Required
 
-**1 — Clone the repo**
+#### 1 — Clone the repo
 
 ```bash
 git clone https://github.com/vit-ui/vimfiles.git ~/vimfiles
 ```
 
-**2 — Upgrade Vim and install Node.js**
+#### 2 — Upgrade Vim and install Node.js
 
 This setup requires a recent Vim build. If your system ships an older version,
 upgrade it:
@@ -51,7 +51,7 @@ Install Node.js (the JavaScript runtime that coc.nvim runs on):
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt install -y nodejs
 ```
 
-**3 — Link configuration files**
+#### 3 — Link configuration files
 
 Vim and Bash look for `.vimrc` and `.bashrc` in your home directory. Link them
 from this repo so your config stays version-controlled:
@@ -67,7 +67,7 @@ source ~/.bashrc
 > commit and push. Run `source ~/.bashrc` after linking to apply bash changes
 > to the current terminal session without restarting it.
 
-**4 — Install vim-plug and plugins**
+#### 4 — Install vim-plug and plugins
 
 vim-plug is the plugin manager. Install it:
 
@@ -86,7 +86,7 @@ Then open Vim and run:
 > `~/.gitignore_global` to ignore `tags` files and `.vimspector.json` (the
 > per-project debugger config file).
 
-**5 — Install system tools**
+#### 5 — Install system tools
 
 Universal Ctags — generates tag files for code symbol navigation, required by
 the Gutentags plugin:
@@ -106,14 +106,18 @@ sudo apt install shellcheck
 
 ### Optional
 
-**ripgrep** — a fast file content search tool that replaces grep for code
+#### ripgrep
+
+a fast file content search tool that replaces grep for code
 search. Used with `rg` in the terminal:
 
 ```bash
 sudo apt install ripgrep
 ```
 
-**GitHub CLI** (`gh`) — command-line interface for GitHub operations (creating
+#### GitHub CLI (`gh`)
+
+command-line interface for GitHub operations (creating
 pull requests, cloning repos, etc.). Not required for the environment to work.
 
 Via webi (gets latest version):
@@ -466,7 +470,7 @@ functions worth knowing by name:
 | ----------- | ------------------------------------------------------- |
 | `cdv`       | Jump to `~/vimfiles`                                    |
 | `evim`      | Open `.vimrc`, `.bashrc`, and `shortcuts.txt` in splits |
-| `shortcuts` | Print `shortcuts.txt` to the terminal                   |
+| `shortcuts` | Open `shortcuts.txt` in less for reading                  |
 | `gcp`       | `git commit && git push` in one step                    |
 
 ### UI Reference
