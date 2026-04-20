@@ -187,12 +187,24 @@ let g:coc_user_config = {
   \ "python.analysis.inlayHints.functionReturnTypes": v:true,
   \ "python.formatting.provider": "black",
   \ "python.formatting.blackPath": "black",
-
+  \
+  \ "go.goplsOptions": {
+  \   "completeUnimported": v:true,
+  \   "usePlaceholders": v:true,
+  \   "staticcheck": v:true,
+  \   "analyses": {
+  \     "unusedparams": v:true,
+  \     "shadow": v:true,
+  \     "unusedwrite": v:true,
+  \     "useany": v:true
+  \   }
+  \ },
+  \
   \ "bashIde.shellcheckPath": "shellcheck",
   \ "bashIde.shellcheckArguments": "--severity=warning",
   \ "bashIde.globPattern": "**/*@(.sh|.inc|.bash|.command)",
   \ "bashIde.backgroundAnalysisMaxFiles": 500,
-
+  \
   \ "json.format.enable": v:true,
   \ "json.validate.enable": v:true,
   \ "json.schemas": [
@@ -203,17 +215,6 @@ let g:coc_user_config = {
   \ ],
 \ }
 
-\ "go.goplsOptions": {
-\   "completeUnimported": v:true,
-\   "usePlaceholders": v:true,
-\   "staticcheck": v:true,
-\   "analyses": {
-\     "unusedparams": v:true,
-\     "shadow": v:true,
-\     "unusedwrite": v:true,
-\     "useany": v:true
-\   }
-\ },
 
 
 " Auto-calculate LSP fold markers silently for any file
