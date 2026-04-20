@@ -1,4 +1,4 @@
-# Personal Dev Environment
+# Linux Dev Environment with Vim
 
 My personal development environment for WSL/Linux. Covers Vim and Bash
 configuration, language-specific tooling, and a debugging setup powered by
@@ -10,7 +10,7 @@ Vimspector.
 | --------------- | -------------------------------------------------------- |
 | `.vimrc`        | Vim config                                               |
 | `.bashrc`       | Bash config                                              |
-| `shortcuts.txt` | Quick reference for Vim, Git, Go, and debugging commands |
+| `shortcuts.txt` | Quick reference for all shortcuts and commands |
 
 ---
 
@@ -30,13 +30,13 @@ Vimspector.
 
 ### Required
 
-#### 1 — Clone the repo
+**1 — Clone the repo**
 
 ```bash
 git clone https://github.com/vit-ui/vimfiles.git ~/vimfiles
 ```
 
-#### 2 — Upgrade Vim and install Node.js
+**2 — Upgrade Vim and install Node.js**
 
 This setup requires a recent Vim build. If your system ships an older version,
 upgrade it:
@@ -51,7 +51,7 @@ Install Node.js (the JavaScript runtime that coc.nvim runs on):
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt install -y nodejs
 ```
 
-#### 3 — Link configuration files
+**3 — Link configuration files**
 
 Vim and Bash look for `.vimrc` and `.bashrc` in your home directory. Link them
 from this repo so your config stays version-controlled:
@@ -67,7 +67,7 @@ source ~/.bashrc
 > commit and push. Run `source ~/.bashrc` after linking to apply bash changes
 > to the current terminal session without restarting it.
 
-#### 4 — Install vim-plug and plugins
+**4 — Install vim-plug and plugins**
 
 vim-plug is the plugin manager. Install it:
 
@@ -86,7 +86,7 @@ Then open Vim and run:
 > `~/.gitignore_global` to ignore `tags` files and `.vimspector.json` (the
 > per-project debugger config file).
 
-#### 5 — Install system tools
+**5 — Install system tools**
 
 Universal Ctags — generates tag files for code symbol navigation, required by
 the Gutentags plugin:
@@ -127,6 +127,8 @@ Via apt (auto-updates with `apt upgrade`):
 ```bash
 sudo apt install gh
 ```
+
+Authenticate after installing:
 
 ```bash
 gh auth login
@@ -294,14 +296,9 @@ See [Debugging](#debugging-vimspector--dap) for how this works.
 
 | Command/Shortcut | Description |
 | ---------------- | ----------- |
-| `\r`             | Run current file |
+| `\r`             | Run current file with Python 3 |
 
 </details>
-
----
-
-<details>
-<summary><b>Markdown</b></summary>
 
 ### Requirements
 
