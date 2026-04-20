@@ -57,8 +57,8 @@ Vim and Bash look for `.vimrc` and `.bashrc` in your home directory. Link them
 from this repo so your config stays version-controlled:
 
 ```bash
-ln -sf ~/vimfiles/.vimrc ~/.vimrc
-ln -sf ~/vimfiles/.bashrc ~/.bashrc
+ln -sf ~/vimfiles/vimrc ~/.vimrc
+ln -sf ~/vimfiles/bashrc ~/.bashrc
 source ~/.bashrc
 ```
 

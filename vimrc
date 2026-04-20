@@ -115,7 +115,7 @@ set nosplitright
 " This tells Vim to wait only 10ms for the rest of an escape sequence
 set ttimeoutlen=10
 
-set colorcolumn=101
+set colorcolumn=111
 
 autocmd Filetype * AnyFoldActivate
 
@@ -143,7 +143,6 @@ let g:coc_global_extensions =
 let g:coc_user_config = {
   \ "coc.preferences.formatOnSaveFiletypes": ["*"],
   \
-  \ "suggest.noselect": v:true,
   \ "suggest.enablePreview": v:true,
   \ "diagnostic.enableSign": v:true,
   \ "diagnostic.errorSign": "✖",
@@ -155,7 +154,7 @@ let g:coc_user_config = {
   \ "coc.source.tag.shortcut": "TAG",
   \ "suggest.lowPrioritySourceLimit": 5,
   \
-  \ "prettier.printWidth": 100,
+  \ "prettier.printWidth": 110,
   \ "prettier.tabWidth": 4,
   \ "prettier.useTabs": v:true,
   \ "prettier.proseWrap": "always",
@@ -171,7 +170,7 @@ let g:coc_user_config = {
   \ "markdownlint.config": {
   \	  "default": v:true,
   \   "MD033": { "allowed_elements": ["details", "summary", "b"] },
-  \	  "MD013": { "line_length": 100, "tables": v:false, "code_blocks": v:false },
+  \	  "MD013": { "line_length": 110, "tables": v:false, "code_blocks": v:false },
   \   "MD024": { "siblings_only": v:true },
   \   "MD029": { "style": "ordered" },
   \   "MD046": { "style": "fenced" },
