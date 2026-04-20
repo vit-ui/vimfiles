@@ -132,13 +132,22 @@ endif
 let g:coc_global_extensions = 
 	\[
 	\	'coc-go', 'coc-json', 'coc-sql', 
-	\	'coc-sh', 'coc-snippets', 'coc-tag',
+	\	'coc-sh', 'coc-tag',
 	\	'coc-markdownlint', 'coc-prettier',
-	\	'@yaegassy/coc-marksman'
+	\	'@yaegassy/coc-marksman', 'coc-pyright'
 	\]
 
 " This sets semantic completion as priority and tags as low-priority fallback
 let g:coc_user_config = {
+  \ "coc.preferences.formatOnSaveFiletypes": ["*"],
+  \
+  \ "suggest.noselect": v:true,
+  \ "suggest.enablePreview": v:true,
+  \ "diagnostic.enableSign": v:true,
+  \ "diagnostic.errorSign": "✖",
+  \ "diagnostic.warningSign": "⚠",
+  \ "diagnostic.infoSign": "ℹ",
+  \ "inlayHint.enable": v:true,
   \ "suggest.languageSourcePriority": 99,
   \ "coc.source.tag.priority": 1,
   \ "coc.source.tag.shortcut": "TAG",
@@ -151,6 +160,8 @@ let g:coc_user_config = {
   \ "prettier.endOfLine": "lf",
   \ "prettier.trailingComma": "es5",
   \ "prettier.singleQuote": v:false,
+  \ "prettier.requireConfig": v:false,
+  \ "prettier.disableLanguages": ["markdown"],
   \
   \ "markdownlint.onOpen": v:true,
   \ "markdownlint.onChange": v:true,
@@ -158,10 +169,52 @@ let g:coc_user_config = {
   \ "markdownlint.config": {
   \	  "default": v:true,
   \   "MD033": { "allowed_elements": ["details", "summary", "b"] },
+  \	  "MD013": { "line_length": 100, "tables": v:false, "code_blocks": v:false },
+  \   "MD024": { "siblings_only": v:true },
+  \   "MD029": { "style": "ordered" },
+  \   "MD046": { "style": "fenced" },
   \	  "list-marker-space": { "ul_multi": 1, "ul_single": 1 },
   \	  "ul-indent": { "indent": 4 }
-  \ }
+  \ },
+  \
+  \ "marksman.enable": v:true,
+  \ "marksman.maxNumberOfProblems": 100,
+  \
+  \ "python.analysis.typeCheckingMode": "strict",
+  \ "python.analysis.autoImportCompletions": v:true,
+  \ "python.analysis.diagnosticMode": "workspace",
+  \ "python.analysis.inlayHints.variableTypes": v:true,
+  \ "python.analysis.inlayHints.functionReturnTypes": v:true,
+  \ "python.formatting.provider": "black",
+  \ "python.formatting.blackPath": "black",
+
+  \ "bashIde.shellcheckPath": "shellcheck",
+  \ "bashIde.shellcheckArguments": "--severity=warning",
+  \ "bashIde.globPattern": "**/*@(.sh|.inc|.bash|.command)",
+  \ "bashIde.backgroundAnalysisMaxFiles": 500,
+
+  \ "json.format.enable": v:true,
+  \ "json.validate.enable": v:true,
+  \ "json.schemas": [
+  \   {
+  \     "fileMatch": [".vimspector.json"],
+  \     "url": "https://puremourning.github.io/vimspector/schema/vimspector.schema.json"
+  \   }
+  \ ],
 \ }
+
+\ "go.goplsOptions": {
+\   "completeUnimported": v:true,
+\   "usePlaceholders": v:true,
+\   "staticcheck": v:true,
+\   "analyses": {
+\     "unusedparams": v:true,
+\     "shadow": v:true,
+\     "unusedwrite": v:true,
+\     "useany": v:true
+\   }
+\ },
+
 
 " Auto-calculate LSP fold markers silently for any file
 " Triggers on open, save, and whenever you return to Normal Mode
@@ -172,7 +225,6 @@ let g:coc_user_config = {
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
 
 " --- Vim-Go Settings ---
-let g:go_fmt_autosave = 1          " Auto-format on save using vim-go
 let g:go_metalinter_autosave = 1   " Run error checking on save
 let g:go_highlight_functions = 1   " Enhanced syntax highlighting for Go
 let g:go_highlight_methods = 1
@@ -341,7 +393,8 @@ autocmd FileType go nmap <leader>t <Plug>(go-test)
 
 " --------------- Python Language Config -------------------
 
-" nothing yet
+autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4
+autocmd FileType python nmap <leader>r :terminal python3 %<CR>
 
 " ------------------ C Language Config ---------------------
 
