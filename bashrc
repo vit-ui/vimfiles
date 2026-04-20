@@ -98,6 +98,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
+# shellcheck source=/dev/null
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
@@ -128,10 +129,10 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
 else
     export BROWSER='xdg-open'
 fi
-alias browser="$BROWSER"
+alias browser='$BROWSER'
 
 # mkcd: create a directory and cd into it in one step
-mkcd() { mkdir -p "$1" && cd "$1"; }
+mkcd() { mkdir -p "$1" && cd "$1" || return; }
 
 # Function to go up N directories
 up() {
@@ -143,7 +144,7 @@ up() {
     for ((i=0; i<count; i++)); do
       path="../$path"
     done
-    cd "$path"
+	  cd "$path" || return
   else
     echo "Usage: up [number]"
   fi
@@ -155,11 +156,16 @@ TAB_SET=$(tabs -4)
 PS1="\[$TAB_SET\]$PS1"
 
 git() {
+	local saved_stty
+	saved_stty=$(stty -g 2>/dev/null)
+
     command git "$@"
     local exit_code=$?
 
-    # Check if the command is NOT status or help AND NOT empty
-    if [[ $exit_code -eq 0 && -n "$1" && "$1" != "status" && "$1" != "help" && "$*" != *"--help"* && "$1" != "pull" ]]; then
+	local current_stty
+	current_stty=$(stty -g 2>/dev/null)
+
+    if [[ $exit_code -eq 0 && -n "$1" && "$1" != "status" && "$1" != "help" && "$*" != *"--help"* && "$1" != "pull" && "$saved_stty" == "$current_stty" ]]; then
         echo ""
         echo "STATUS:"
         command git status
