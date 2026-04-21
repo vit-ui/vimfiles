@@ -188,6 +188,10 @@ let g:coc_user_config = {
   \ "python.analysis.inlayHints.functionReturnTypes": v:true,
   \ "python.formatting.provider": "black",
   \ "python.formatting.blackPath": "black",
+  \ "python.analysis.diagnosticSeverityOverrides": {
+  \   "reportMissingTypeStubs": "none",
+  \   "reportUnknownMemberType": "none"
+  \ },
   \
   \ "go.goplsOptions": {
   \   "completeUnimported": v:true,

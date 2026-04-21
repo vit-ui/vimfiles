@@ -156,16 +156,15 @@ TAB_SET=$(tabs -4)
 PS1="\[$TAB_SET\]$PS1"
 
 git() {
-	local saved_stty
-	saved_stty=$(stty -g 2>/dev/null)
-
     command git "$@"
     local exit_code=$?
 
-	local current_stty
-	current_stty=$(stty -g 2>/dev/null)
+	local interactive_cmds="stage|add|rebase|commit|diff|log|stash show|cherry-pick"
+	if [[ "$*" =~ ^($interactive_cmds) ]]; then
+		return $exit_code
+	fi
 
-    if [[ $exit_code -eq 0 && -n "$1" && "$1" != "status" && "$1" != "help" && "$*" != *"--help"* && "$1" != "pull" && "$saved_stty" == "$current_stty" ]]; then
+    if [[ $exit_code -eq 0 && -n "$1" && "$1" != "status" && "$1" != "help" && "$*" != *"--help"* && "$1" != "pull" ]]; then
         echo ""
         echo "STATUS:"
         command git status
