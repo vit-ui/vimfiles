@@ -82,10 +82,6 @@ Then open Vim and run:
 :PlugInstall
 ```
 
-> On the first open, Vim automatically creates and configures
-> `~/.gitignore_global` to ignore `tags` files and `.vimspector.json` (the
-> per-project debugger config file).
-
 #### 5 — Install system tools
 
 Universal Ctags — generates tag files for code symbol navigation, required by
@@ -94,6 +90,10 @@ the Gutentags plugin:
 ```bash
 sudo apt install universal-ctags
 ```
+
+> On the first open, Vim automatically creates and configures
+> `~/.gitignore_global` to ignore `tags` files and `.vimspector.json` (the
+> per-project debugger config file).
 
 shellcheck — static analysis tool for shell scripts, used by coc-sh for
 diagnostics in `.sh` and `.bashrc` files:

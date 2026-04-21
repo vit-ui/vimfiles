@@ -221,12 +221,6 @@ let g:coc_user_config = {
 \ }
 
 
-
-" Auto-calculate LSP fold markers silently for any file
-" Triggers on open, save, and whenever you return to Normal Mode
-" Only attempt to fold if CoC is initialized and the provider exists
-" autocmd InsertLeave,BufWritePost * if CocHasProvider('foldingRange') | call CocActionAsync('fold') | endif
-
 " Use Tab to confirm the selection when the menu is visible
 inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<TAB>"
 
