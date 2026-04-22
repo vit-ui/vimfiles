@@ -176,6 +176,7 @@ la                      ls -A (all files, no details)
 l                       ls -CF
 history                 Pipe history output through less for scrollable reading
 reload                  source ~/.bashrc — apply bashrc changes to current session
+setupdocs               Open the vimfiles README with glow in pager mode
 
 mkcd <dir>              Create directory and cd into it immediately
 up [n]                  Go up N directories  e.g. up 3 = cd ../../..
@@ -300,5 +301,22 @@ rg -t go "text"         Search only inside files of a specific type
                         e.g. go, py, sh, sql, md
 rg -i "text"            Case-insensitive search
 rg --hidden "text"      Include hidden files in search (e.g. .vimrc, .bashrc)
+
+------------------------------------------------------------
+  ENVSETUP
+------------------------------------------------------------
+
+envsetup init           First-time interactive setup — installs Vim, Node.js,
+                        system tools, links config files, and optionally sets
+                        up languages. Safe to re-run (skips completed steps).
+envsetup lang go        Set up Go development environment
+envsetup lang python    Set up Python development environment
+envsetup lang markdown  Set up Markdown environment
+envsetup info           Open the README with glow (same as setupdocs)
+envsetup help           Show usage and available commands
+
+                        Note: debugger setup is per-project.
+                        Run :InstallDebugger <adapter> in Vim from your
+                        project root after setting up a language.
 
 ============================================================

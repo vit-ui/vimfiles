@@ -199,9 +199,10 @@ alias gcp='git commit && git push'
 alias watch='watch -n 2'  # default interval of 2s
 alias shortcuts='less ~/vimfiles/shortcuts.txt'
 alias cdv='cd ~/vimfiles'
-alias evim='vim ~/vimfiles/shortcuts.txt ~/vimfiles/.bashrc ~/vimfiles/.vimrc'
+alias evim='vim ~/vimfiles/shortcuts.txt ~/vimfiles/bashrc ~/vimfiles/vimrc'
 alias history='history | less'
 alias reload='source ~/.bashrc'
+alias setupdocs='glow -p ~/vimfiles/README.md | less'
 
 # some more ls aliases
 alias ll='ls -alF'

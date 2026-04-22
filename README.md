@@ -6,11 +6,12 @@ Vimspector.
 
 ## Repository Structure
 
-| File            | Description                                              |
-| --------------- | -------------------------------------------------------- |
-| `.vimrc`        | Vim config                                               |
-| `.bashrc`       | Bash config                                              |
+| File            | Description                                    |
+| --------------- | ---------------------------------------------- |
+| `vimrc`         | Vim config                                     |
+| `bashrc`        | Bash config                                    |
 | `shortcuts.txt` | Quick reference for all shortcuts and commands |
+| `envsetup`      | Setup script for new machines                  |
 
 ---
 
@@ -27,6 +28,16 @@ Vimspector.
 ---
 
 ## First-Time Setup
+
+The steps below are the full manual reference. If you prefer an automated
+setup, see [envsetup](#envsetup-script) which handles all of this interactively.
+
+> **Important:** This repo must be cloned to `~/vimfiles`. If you cloned it
+> elsewhere, create a symlink so scripts and config paths resolve correctly:
+>
+> ```bash
+> ln -sf /path/to/your/vimfiles ~/vimfiles
+> ```
 
 ### Required
 
@@ -45,10 +56,14 @@ upgrade it:
 sudo add-apt-repository ppa:jonathonf/vim && sudo apt update && sudo apt install vim
 ```
 
-Install Node.js (the JavaScript runtime that coc.nvim runs on):
+Install Node.js via nvm (Node Version Manager — installs Node without sudo and
+works on all platforms):
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt install -y nodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+source ~/.nvm/nvm.sh
+nvm install --lts
+nvm alias default lts/*
 ```
 
 #### 3 — Link configuration files
@@ -63,7 +78,7 @@ source ~/.bashrc
 ```
 
 > These are symbolic links — the actual files stay in this repo. Any edit to
-> `~/.vimrc` is really an edit to `~/vimfiles/.vimrc`, which you can then
+> `~/.vimrc` is really an edit to `~/vimfiles/vimrc`, which you can then
 > commit and push. Run `source ~/.bashrc` after linking to apply bash changes
 > to the current terminal session without restarting it.
 
@@ -82,6 +97,10 @@ Then open Vim and run:
 :PlugInstall
 ```
 
+> On the first open, Vim automatically creates and configures
+> `~/.gitignore_global` to ignore `tags` files and `.vimspector.json` (the
+> per-project debugger config file).
+
 #### 5 — Install system tools
 
 Universal Ctags — generates tag files for code symbol navigation, required by
@@ -91,15 +110,31 @@ the Gutentags plugin:
 sudo apt install universal-ctags
 ```
 
-> On the first open, Vim automatically creates and configures
-> `~/.gitignore_global` to ignore `tags` files and `.vimspector.json` (the
-> per-project debugger config file).
-
 shellcheck — static analysis tool for shell scripts, used by coc-sh for
 diagnostics in `.sh` and `.bashrc` files:
 
 ```bash
 sudo apt install shellcheck
+```
+
+glow — terminal Markdown renderer, used by `:Preview`, `\mp`, and the
+`setupdocs` alias:
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
+sudo apt update && sudo apt install glow
+```
+
+#### 6 — Add envsetup to PATH
+
+If you ran `envsetup init`, this is done automatically. If you are doing the
+setup manually:
+
+```bash
+chmod +x ~/vimfiles/envsetup
+sudo ln -sf ~/vimfiles/envsetup /usr/local/bin/envsetup
 ```
 
 ---
@@ -108,8 +143,8 @@ sudo apt install shellcheck
 
 #### ripgrep
 
-a fast file content search tool that replaces grep for code
-search. Used with `rg` in the terminal:
+A fast file content search tool that replaces grep for code search. Used with
+`rg` in the terminal:
 
 ```bash
 sudo apt install ripgrep
@@ -117,8 +152,8 @@ sudo apt install ripgrep
 
 #### GitHub CLI (`gh`)
 
-command-line interface for GitHub operations (creating
-pull requests, cloning repos, etc.). Not required for the environment to work.
+Command-line interface for GitHub operations (creating pull requests, cloning
+repos, etc.). Not required for the environment to work.
 
 Via webi (gets latest version):
 
@@ -140,6 +175,39 @@ gh auth login
 
 ---
 
+## envsetup Script
+
+`envsetup` is a setup script that automates the First-Time Setup steps above.
+It is interactive, idempotent (safe to re-run), and works on apt, dnf, pacman,
+and brew systems.
+
+### Usage
+
+```bash
+envsetup init              # First-time setup — interactive
+envsetup lang go           # Set up Go (also: python, markdown)
+envsetup info              # Open this README with glow
+envsetup help              # Show usage
+```
+
+### What it does
+
+`envsetup init` walks you through the same steps as First-Time Setup above,
+asking which languages and optional tools to install. Each step checks if it
+is already done and skips it if so.
+
+`envsetup lang <n>` sets up a single language at any time after init — useful
+when you want to add a language later without re-running the full setup.
+
+After `init` completes, `envsetup` is available from anywhere on the system.
+
+### What it does NOT do
+
+- Per-project debugger setup — run `:InstallDebugger <adapter>` in Vim from
+  your project root when needed. See [Debugging](#debugging-vimspector--dap).
+
+---
+
 ## Language Setup
 
 All languages format automatically on save via CoC. No manual step is needed
@@ -156,7 +224,22 @@ formatting will work on save automatically.
 
 ### 1 — Install Go
 
-Download the latest `.tar.gz` from [go.dev/dl](https://go.dev/dl/) and run:
+The script below fetches the latest stable release from Go's API, detects your
+CPU architecture, and installs to `/usr/local/go`:
+
+```bash
+GO_VER=$(curl -s "https://go.dev/dl/?mode=json" \
+    | grep -o '"version":"go[^"]*"' | head -1 | cut -d'"' -f4)
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+curl -Lo "/tmp/${GO_VER}.linux-${ARCH}.tar.gz" \
+    "https://go.dev/dl/${GO_VER}.linux-${ARCH}.tar.gz"
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf "/tmp/${GO_VER}.linux-${ARCH}.tar.gz"
+rm "/tmp/${GO_VER}.linux-${ARCH}.tar.gz"
+```
+
+Alternatively, download the `.tar.gz` manually from
+[go.dev/dl](https://go.dev/dl/) and run:
 
 ```bash
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go_XX.X.tar.gz
@@ -232,7 +315,7 @@ See [Debugging](#debugging-vimspector--dap) for how this works.
 - Python 3 and pip
 - pipx (tool manager for Python CLI programs)
 - black (formatter)
-- debugpy (downloaded automatically by `:InstallDebugger debugpy`, see step 2)
+- debugpy (downloaded automatically by `:InstallDebugger debugpy`, see step 3)
 
 ### 1 — Install Python 3 and pip
 
@@ -311,32 +394,13 @@ See [Debugging](#debugging-vimspector--dap) for how this works.
 
 ### Requirements
 
-- glow (terminal Markdown renderer)
+- glow (terminal Markdown renderer — installed in First-Time Setup step 5)
 
 Three CoC extensions handle Markdown automatically after `:PlugInstall`:
 coc-markdownlint (lints style violations as you type and on save),
 coc-prettier (formats prose on save), and coc-marksman (a Markdown language
 server that enables `\d` and `\fr` on internal document links between `.md`
 files).
-
-### 1 — Install glow
-
-glow is a terminal Markdown renderer used by the `:Preview` command.
-
-Via apt (auto-updates with `apt upgrade`):
-
-```bash
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
-echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
-sudo apt update && sudo apt install glow
-```
-
-Via webi (does not auto-update, re-run to update):
-
-```bash
-curl -sS https://webi.sh/glow | sh
-```
 
 ### Shortcuts
 
@@ -466,12 +530,13 @@ functions worth knowing by name:
 
 ### Quick Config Access
 
-| Command     | Description                                             |
-| ----------- | ------------------------------------------------------- |
-| `cdv`       | Jump to `~/vimfiles`                                    |
-| `evim`      | Open `.vimrc`, `.bashrc`, and `shortcuts.txt` in splits |
-| `shortcuts` | Open `shortcuts.txt` in less for reading                  |
-| `gcp`       | `git commit && git push` in one step                    |
+| Command      | Description                                             |
+| ------------ | ------------------------------------------------------- |
+| `cdv`        | Jump to `~/vimfiles`                                    |
+| `evim`       | Open `vimrc`, `bashrc`, and `shortcuts.txt` in splits   |
+| `shortcuts`  | Open `shortcuts.txt` in less for reading                |
+| `setupdocs`  | Open this README with glow                              |
+| `gcp`        | `git commit && git push` in one step                    |
 
 ### UI Reference
 

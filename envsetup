@@ -1,0 +1,710 @@
+#!/usr/bin/env bash
+# =============================================================================
+# envsetup — vimfiles environment setup script
+#
+# Usage:
+#   envsetup init          First-time setup (interactive, idempotent)
+#   envsetup lang <name>   Set up a language: go, python, markdown
+#   envsetup info          Open the README with glow
+#   envsetup help          Show this help
+#
+# The vimfiles repo must be cloned to ~/vimfiles. If it is not there,
+# this script will exit with an error.
+# =============================================================================
+
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# CONSTANTS
+# -----------------------------------------------------------------------------
+
+VIMFILES="$HOME/vimfiles"
+LOG="/tmp/envsetup.log"
+
+# ANSI color codes for terminal output
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+YELLOW="\033[0;33m"
+BOLD="\033[1m"
+RESET="\033[0m"
+
+# -----------------------------------------------------------------------------
+# HELPERS
+# -----------------------------------------------------------------------------
+
+# Print a bold header banner
+banner() {
+    echo ""
+    echo -e "${BOLD}╔══════════════════════════════════════╗${RESET}"
+    echo -e "${BOLD}║   vimfiles environment setup         ║${RESET}"
+    echo -e "${BOLD}╚══════════════════════════════════════╝${RESET}"
+    echo ""
+}
+
+# Print a success line
+ok() { echo -e "  ${GREEN}✔${RESET} $1"; }
+
+# Print a warning line (non-fatal)
+warn() { echo -e "  ${YELLOW}⚠${RESET}  $1"; }
+
+# Print an error and exit
+error() {
+    echo -e "  ${RED}✖${RESET} $1"
+    echo "  See $LOG for details."
+    exit 1
+}
+
+# Run a command, logging all output. On failure, call error().
+# Usage: step "Description" command arg1 arg2 ...
+step() {
+    local desc="$1"
+    shift
+    echo -ne "  ${desc}..."
+    # Append stdout and stderr to log file, suppress terminal output
+    if "$@" >> "$LOG" 2>&1; then
+        echo -e " ${GREEN}✔${RESET}"
+    else
+        echo -e " ${RED}✖${RESET}"
+        error "Failed: ${desc}"
+    fi
+}
+
+# Prompt the user for a yes/no answer. Returns 0 for yes, 1 for no.
+# Usage: ask_yes_no "Question" && do_something
+ask_yes_no() {
+    local prompt="$1"
+    local default="${2:-n}"   # default answer if user just presses Enter
+    local answer
+    if [[ "$default" == "y" ]]; then
+        read -rp "  ${prompt} (Y/n): " answer
+        answer="${answer:-y}"
+    else
+        read -rp "  ${prompt} (y/N): " answer
+        answer="${answer:-n}"
+    fi
+    [[ "$answer" =~ ^[Yy]$ ]]
+}
+
+# Prompt for a non-empty string input
+# Usage: ask_input "Question" variable_name
+ask_input() {
+    local prompt="$1"
+    local varname="$2"
+    local value=""
+    while [[ -z "$value" ]]; do
+        read -rp "  ${prompt}: " value
+    done
+    # Assign to the named variable in the caller's scope
+    printf -v "$varname" '%s' "$value"
+}
+
+# Print a multi-select menu. Sets global array SELECTED_ITEMS.
+# Usage: multiselect "Title" item1 item2 item3
+# User toggles with numbers, confirms with Enter on empty input.
+multiselect() {
+    local title="$1"
+    shift
+    local items=("$@")
+    # selected[i]=1 means item i is selected, 0 means not
+    local selected=()
+    for _ in "${items[@]}"; do
+        selected+=(0)
+    done
+
+    while true; do
+        echo ""
+        echo -e "  ${BOLD}${title}${RESET} (enter number to toggle, Enter to confirm):"
+        for i in "${!items[@]}"; do
+            if [[ "${selected[$i]}" -eq 1 ]]; then
+                echo -e "    ${GREEN}[x]${RESET} $((i+1))) ${items[$i]}"
+            else
+                echo    "    [ ] $((i+1))) ${items[$i]}"
+            fi
+        done
+        read -rp "  > " choice
+        # Empty input confirms selection
+        if [[ -z "$choice" ]]; then
+            break
+        fi
+        # Toggle the selected item if input is a valid number
+        if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#items[@]} )); then
+            local idx=$((choice - 1))
+            selected[$idx]=$(( 1 - selected[$idx] ))
+        fi
+    done
+
+    # Export selected items into global array
+    SELECTED_ITEMS=()
+    for i in "${!items[@]}"; do
+        if [[ "${selected[$i]}" -eq 1 ]]; then
+            SELECTED_ITEMS+=("${items[$i]}")
+        fi
+    done
+}
+
+# Check if a value exists in an array
+# Usage: in_array "value" "${array[@]}"
+in_array() {
+    local needle="$1"
+    shift
+    for item in "$@"; do
+        [[ "$item" == "$needle" ]] && return 0
+    done
+    return 1
+}
+
+# -----------------------------------------------------------------------------
+# PREFLIGHT CHECKS
+# -----------------------------------------------------------------------------
+
+# Verify that ~/vimfiles exists. If not, print a helpful error and exit.
+check_vimfiles() {
+    if [[ ! -d "$VIMFILES" ]]; then
+        echo ""
+        echo -e "${RED}Error:${RESET} vimfiles repo not found at ${BOLD}$VIMFILES${RESET}"
+        echo ""
+        echo "  This script expects the repo to be cloned at ~/vimfiles."
+        echo "  If you cloned it elsewhere, create a symlink:"
+        echo ""
+        echo "    ln -sf /path/to/your/vimfiles ~/vimfiles"
+        echo ""
+        echo "  To clone fresh:"
+        echo ""
+        echo "    git clone https://github.com/vit-ui/vimfiles.git ~/vimfiles"
+        echo ""
+        exit 1
+    fi
+}
+
+# Detect the system package manager and set PKG variable.
+# Exits if no supported package manager is found.
+detect_pkg_manager() {
+    if command -v apt > /dev/null 2>&1; then
+        PKG="apt"
+    elif command -v dnf > /dev/null 2>&1; then
+        PKG="dnf"
+    elif command -v pacman > /dev/null 2>&1; then
+        PKG="pacman"
+    elif command -v brew > /dev/null 2>&1; then
+        PKG="brew"
+    else
+        error "No supported package manager found (apt, dnf, pacman, brew)."
+    fi
+}
+
+# Install a package using the detected package manager.
+# Usage: pkg_install package_name
+pkg_install() {
+    local pkg="$1"
+    case "$PKG" in
+        apt)    sudo apt-get install -y "$pkg" ;;
+        dnf)    sudo dnf install -y "$pkg" ;;
+        pacman) sudo pacman -S --noconfirm "$pkg" ;;
+        brew)   brew install "$pkg" ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# INSTALL STEPS
+# -----------------------------------------------------------------------------
+
+# Install or upgrade Vim using the appropriate method for the distro.
+install_vim() {
+    # Check if a sufficiently recent vim is already installed (version 9+)
+    if command -v vim > /dev/null 2>&1; then
+        local ver
+        ver=$(vim --version | head -1 | grep -o '[0-9]\+\.[0-9]\+' | head -1)
+        local major
+        major=$(echo "$ver" | cut -d. -f1)
+        if (( major >= 9 )); then
+            ok "Vim ${ver} already installed — skipping"
+            return
+        fi
+    fi
+
+    case "$PKG" in
+        apt)
+            # The Ubuntu default Vim is often too old for coc.nvim.
+            # The jonathonf PPA provides a recent build.
+            step "Adding Vim PPA" sudo add-apt-repository -y ppa:jonathonf/vim
+            step "Updating apt"   sudo apt-get update -q
+            step "Installing Vim" sudo apt-get install -y vim
+            ;;
+        dnf)
+            # Fedora ships a recent Vim natively — no extra repo needed.
+            step "Installing Vim" sudo dnf install -y vim
+            ;;
+        pacman)
+            # Arch always provides the latest Vim.
+            step "Installing Vim" sudo pacman -S --noconfirm vim
+            ;;
+        brew)
+            step "Installing Vim" brew install vim
+            ;;
+    esac
+}
+
+# Install Node.js via nvm (Node Version Manager).
+# nvm works on all supported platforms with a single install script.
+# It installs to ~/.nvm and adds itself to the shell profile.
+install_node() {
+    if command -v node > /dev/null 2>&1; then
+        ok "Node.js $(node --version) already installed — skipping"
+        return
+    fi
+
+    # Fetch the latest nvm version tag from GitHub API
+    local nvm_ver
+    nvm_ver=$(curl -sL https://api.github.com/repos/nvm-sh/nvm/releases/latest \
+        | grep '"tag_name"' | cut -d'"' -f4)
+
+    step "Installing nvm ${nvm_ver}" \
+        bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_ver}/install.sh | bash"
+
+    # Source nvm in current shell session so we can use it immediately
+    export NVM_DIR="$HOME/.nvm"
+    # shellcheck source=/dev/null
+    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+
+    step "Installing Node.js LTS" nvm install --lts
+    step "Setting Node.js LTS as default" nvm alias default lts/*
+}
+
+# Install system tools required by the Vim setup.
+# Idempotent — skips tools that are already installed.
+install_system_tools() {
+    # Universal Ctags: generates tag files for code navigation (required by Gutentags)
+    if ! command -v ctags > /dev/null 2>&1; then
+        step "Installing universal-ctags" pkg_install universal-ctags
+    else
+        ok "ctags already installed — skipping"
+    fi
+
+    # shellcheck: static analysis for shell scripts (used by coc-sh)
+    if ! command -v shellcheck > /dev/null 2>&1; then
+        step "Installing shellcheck" pkg_install shellcheck
+    else
+        ok "shellcheck already installed — skipping"
+    fi
+
+    # glow: terminal Markdown renderer (used by :Preview and setupdocs alias)
+    if ! command -v glow > /dev/null 2>&1; then
+        case "$PKG" in
+            apt)
+                step "Adding glow apt repo" bash -c "
+                    sudo mkdir -p /etc/apt/keyrings
+                    curl -fsSL https://repo.charm.sh/apt/gpg.key \
+                        | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+                    echo 'deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *' \
+                        | sudo tee /etc/apt/sources.list.d/charm.list
+                    sudo apt-get update -q
+                "
+                step "Installing glow" sudo apt-get install -y glow
+                ;;
+            dnf|pacman|brew)
+                # glow is available in most package managers
+                step "Installing glow" pkg_install glow
+                ;;
+        esac
+    else
+        ok "glow already installed — skipping"
+    fi
+}
+
+# Link .vimrc and .bashrc from the repo to the home directory.
+# Uses -sf so re-running is safe — it replaces existing symlinks.
+link_config_files() {
+    step "Linking vimrc"  ln -sf "$VIMFILES/vimrc"  "$HOME/.vimrc"
+    step "Linking bashrc" ln -sf "$VIMFILES/bashrc" "$HOME/.bashrc"
+    ok "Config files linked"
+}
+
+# Configure git user name and email globally.
+configure_git() {
+    local name="$1"
+    local email="$2"
+    step "Setting git user.name"  git config --global user.name  "$name"
+    step "Setting git email"      git config --global user.email "$email"
+    step "Setting pull.rebase"    git config --global pull.rebase true
+}
+
+# Switch the vimfiles remote from SSH to HTTPS.
+# HTTPS works without an SSH key, which is the expected case for a new machine.
+set_remote_https() {
+    local current
+    current=$(git -C "$VIMFILES" remote get-url origin 2>/dev/null || true)
+    if [[ "$current" == https://* ]]; then
+        ok "Remote already set to HTTPS — skipping"
+        return
+    fi
+    step "Setting remote to HTTPS" \
+        git -C "$VIMFILES" remote set-url origin https://github.com/vit-ui/vimfiles.git
+}
+
+# Install vim-plug (the Vim plugin manager) if not already present.
+install_vim_plug() {
+    local plug_path="$HOME/.vim/autoload/plug.vim"
+    if [[ -f "$plug_path" ]]; then
+        ok "vim-plug already installed — skipping"
+        return
+    fi
+    step "Installing vim-plug" bash -c "
+        curl -fLo '$plug_path' --create-dirs \
+            https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    "
+}
+
+# Install all Vim plugins listed in vimrc non-interactively.
+# vim -es runs Vim in silent ex mode (no UI). Safe to re-run.
+install_vim_plugins() {
+    step "Installing Vim plugins" \
+        vim -es -u "$VIMFILES/vimrc" +PlugInstall +qall
+}
+
+# Symlink the envsetup script to /usr/local/bin so it is on PATH.
+install_envsetup_to_path() {
+    local target="/usr/local/bin/envsetup"
+    if [[ -L "$target" ]] && [[ "$(readlink -f "$target")" == "$(readlink -f "$VIMFILES/envsetup")" ]]; then
+        ok "envsetup already on PATH — skipping"
+        return
+    fi
+    step "Adding envsetup to PATH" \
+        sudo ln -sf "$VIMFILES/envsetup" "$target"
+    step "Making envsetup executable" \
+        chmod +x "$VIMFILES/envsetup"
+}
+
+# Install optional tool: ripgrep
+install_ripgrep() {
+    if command -v rg > /dev/null 2>&1; then
+        ok "ripgrep already installed — skipping"
+        return
+    fi
+    step "Installing ripgrep" pkg_install ripgrep
+}
+
+# Install optional tool: GitHub CLI
+install_gh() {
+    if command -v gh > /dev/null 2>&1; then
+        ok "gh already installed — skipping"
+        return
+    fi
+    # Use webi for a distro-agnostic install that always gets the latest version
+    step "Installing GitHub CLI" bash -c "curl -sS https://webi.sh/gh | sh"
+}
+
+# -----------------------------------------------------------------------------
+# LANGUAGE SETUP
+# -----------------------------------------------------------------------------
+
+# Set up Go development environment.
+# Fetches the latest Go release from the official API, installs to /usr/local/go,
+# installs Delve (the Go debugger binary), and runs GoUpdateBinaries in Vim.
+setup_go() {
+    echo ""
+    echo -e "  ${BOLD}Setting up Go...${RESET}"
+
+    # Check if Go is already installed and up to date
+    if command -v go > /dev/null 2>&1; then
+        ok "Go $(go version | awk '{print $3}') already installed — skipping binary install"
+    else
+        # Fetch latest stable Go version from the official downloads API
+        local go_ver
+        go_ver=$(curl -s "https://go.dev/dl/?mode=json" \
+            | grep -o '"version":"go[^"]*"' | head -1 | cut -d'"' -f4)
+
+        # Detect CPU architecture and map to Go's naming convention
+        local arch
+        arch=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+
+        local tarball="${go_ver}.linux-${arch}.tar.gz"
+        local url="https://go.dev/dl/${tarball}"
+
+        step "Downloading Go ${go_ver}" curl -Lo "/tmp/${tarball}" "$url"
+        step "Installing Go to /usr/local" bash -c "
+            sudo rm -rf /usr/local/go
+            sudo tar -C /usr/local -xzf /tmp/${tarball}
+            rm /tmp/${tarball}
+        "
+
+        # Make go available in this shell session without restarting
+        export PATH=$PATH:/usr/local/go/bin
+    fi
+
+    # Install Delve — the Go debugger binary.
+    # VimspectorInstall does NOT download this; it must be installed manually.
+    if command -v dlv > /dev/null 2>&1; then
+        ok "Delve already installed — skipping"
+    else
+        step "Installing Delve" go install github.com/go-delve/delve/cmd/dlv@latest
+    fi
+
+    # Install gopls and vim-go tooling inside Vim
+    step "Installing Go tooling (gopls + vim-go)" \
+        vim -es -u "$VIMFILES/vimrc" +GoUpdateBinaries +qall
+
+    warn "Debugger setup is per-project. Run :InstallDebugger delve in your project root."
+}
+
+# Set up Python development environment.
+# Installs Python 3, pipx, and black (the formatter).
+# debugpy is downloaded automatically by :InstallDebugger debugpy — no install needed here.
+setup_python() {
+    echo ""
+    echo -e "  ${BOLD}Setting up Python...${RESET}"
+
+    # Install Python 3 and pip if missing
+    if ! command -v python3 > /dev/null 2>&1; then
+        step "Installing Python 3" pkg_install python3
+    else
+        ok "Python $(python3 --version | awk '{print $2}') already installed — skipping"
+    fi
+
+    if ! command -v pip3 > /dev/null 2>&1; then
+        step "Installing pip" pkg_install python3-pip
+    else
+        ok "pip already installed — skipping"
+    fi
+
+    # Install pipx — installs Python CLI tools in isolated environments
+    # so they don't pollute the system Python
+    if ! command -v pipx > /dev/null 2>&1; then
+        step "Installing pipx" pkg_install pipx
+        step "Running pipx ensurepath" pipx ensurepath
+    else
+        ok "pipx already installed — skipping"
+    fi
+
+    # Install black — the Python formatter called on save by CoC
+    if ! command -v black > /dev/null 2>&1; then
+        step "Installing black" pipx install black
+    else
+        ok "black already installed — skipping"
+    fi
+
+    warn "Debugger setup is per-project. Run :InstallDebugger debugpy in your project root."
+    warn "debugpy is downloaded automatically by :InstallDebugger — no separate install needed."
+}
+
+# Set up Markdown environment.
+# glow is already installed by install_system_tools since it is required
+# for the setupdocs alias. This function just confirms and informs.
+setup_markdown() {
+    echo ""
+    echo -e "  ${BOLD}Setting up Markdown...${RESET}"
+
+    if command -v glow > /dev/null 2>&1; then
+        ok "glow already installed"
+    else
+        # This should not happen since glow is installed in system tools,
+        # but handle it gracefully just in case
+        install_system_tools
+    fi
+
+    ok "coc-markdownlint, coc-prettier, and coc-marksman install automatically"
+    ok "on next Vim open via g:coc_global_extensions"
+    ok "Markdown is ready to use"
+}
+
+# -----------------------------------------------------------------------------
+# COMMANDS
+# -----------------------------------------------------------------------------
+
+# Show usage information
+cmd_help() {
+    echo ""
+    echo -e "${BOLD}envsetup${RESET} — vimfiles dev environment setup"
+    echo ""
+    echo "  Usage: envsetup <command> [args]"
+    echo ""
+    echo "  Commands:"
+    echo "    init              First-time setup (interactive, safe to re-run)"
+    echo "    lang <name>       Set up a language: go, python, markdown"
+    echo "    info              Open the README with glow"
+    echo "    help              Show this help"
+    echo ""
+    echo "  Examples:"
+    echo "    envsetup init"
+    echo "    envsetup lang go"
+    echo "    envsetup lang python"
+    echo "    envsetup info"
+    echo ""
+    echo "  Requirements:"
+    echo "    - ~/vimfiles must exist (clone from https://github.com/vit-ui/vimfiles.git)"
+    echo "    - curl"
+    echo "    - sudo (Linux) or Homebrew (macOS)"
+    echo ""
+    echo "  What init does NOT handle:"
+    echo "    - Per-project debugger setup (:InstallDebugger <adapter> in Vim)"
+    echo ""
+}
+
+# Open the README with glow
+cmd_info() {
+    check_vimfiles
+    if ! command -v glow > /dev/null 2>&1; then
+        error "glow is not installed. Run 'envsetup init' first."
+    fi
+    glow "$VIMFILES/README.md" | less
+}
+
+# Set up a specific language
+cmd_lang() {
+    local lang="${1:-}"
+    if [[ -z "$lang" ]]; then
+        echo ""
+        echo -e "${RED}Error:${RESET} No language specified."
+        echo "  Usage: envsetup lang <name>"
+        echo "  Available: go, python, markdown"
+        echo ""
+        exit 1
+    fi
+
+    check_vimfiles
+    detect_pkg_manager
+
+    # Clear the log for this run
+    echo "envsetup lang $lang — $(date)" > "$LOG"
+
+    case "$lang" in
+        go)       setup_go ;;
+        python)   setup_python ;;
+        markdown) setup_markdown ;;
+        *)
+            echo ""
+            echo -e "${RED}Error:${RESET} Unknown language '${lang}'."
+            echo "  Available: go, python, markdown"
+            echo ""
+            exit 1
+            ;;
+    esac
+
+    echo ""
+    echo -e "${GREEN}${BOLD}Done!${RESET} Language '${lang}' is ready."
+    echo ""
+    echo "  Run 'envsetup info' to open the README."
+    echo "  Run 'shortcuts'    to open the shortcuts reference."
+    echo ""
+}
+
+# First-time interactive setup
+cmd_init() {
+    check_vimfiles
+    detect_pkg_manager
+
+    # Clear the log for this run
+    echo "envsetup init — $(date)" > "$LOG"
+
+    banner
+    echo -e "  Detected package manager: ${BOLD}${PKG}${RESET}"
+    echo ""
+
+    # --- Gather user input ---
+
+    ask_input "Git name (for commits)" GIT_NAME
+    ask_input "Git email (for commits)" GIT_EMAIL
+    echo ""
+
+    # Language selection — multi-select menu
+    multiselect "Which languages would you like to set up?" \
+        "Go" "Python" "Markdown" "None — I will do this later (envsetup lang <name>)"
+    LANG_SELECTION=("${SELECTED_ITEMS[@]}")
+    echo ""
+
+    # Optional tools — multi-select menu
+    multiselect "Install optional tools?" \
+        "ripgrep (fast code search)" "GitHub CLI (gh)"
+    OPT_SELECTION=("${SELECTED_ITEMS[@]}")
+    echo ""
+
+    # GitHub CLI auth — only ask if gh was selected
+    DO_GH_AUTH=0
+    if in_array "GitHub CLI (gh)" "${OPT_SELECTION[@]}"; then
+        if ask_yes_no "Set up GitHub CLI authentication now?"; then
+            DO_GH_AUTH=1
+        fi
+        echo ""
+    fi
+
+    # --- Run required setup steps ---
+
+    echo -e "  ${BOLD}Running setup...${RESET}"
+    echo ""
+
+    install_vim
+    install_node
+    install_system_tools
+    link_config_files
+    configure_git "$GIT_NAME" "$GIT_EMAIL"
+    set_remote_https
+    install_vim_plug
+    install_vim_plugins
+    install_envsetup_to_path
+
+    # --- Run optional tool installs ---
+
+    if in_array "ripgrep (fast code search)" "${OPT_SELECTION[@]}"; then
+        install_ripgrep
+    fi
+
+    if in_array "GitHub CLI (gh)" "${OPT_SELECTION[@]}"; then
+        install_gh
+        if [[ "$DO_GH_AUTH" -eq 1 ]]; then
+            echo ""
+            echo -e "  ${BOLD}Authenticating GitHub CLI...${RESET}"
+            gh auth login
+        fi
+    fi
+
+    # --- Run selected language setups ---
+
+    for lang in "${LANG_SELECTION[@]}"; do
+        case "$lang" in
+            "Go")       setup_go ;;
+            "Python")   setup_python ;;
+            "Markdown") setup_markdown ;;
+            "None — I will do this later (envsetup lang <name>)") ;;
+        esac
+    done
+
+    # --- Done ---
+
+    echo ""
+    echo -e "${GREEN}${BOLD}Setup complete!${RESET}"
+    echo ""
+    echo "  Restart your terminal (or run 'source ~/.bashrc') to apply changes."
+    echo ""
+    echo "  To get started:"
+    echo "    envsetup info    — open the README"
+    echo "    shortcuts        — open the shortcuts reference"
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
+# ENTRY POINT
+# -----------------------------------------------------------------------------
+
+# No arguments — print error and show help
+if [[ $# -eq 0 ]]; then
+    echo ""
+    echo -e "${RED}Error:${RESET} No command specified."
+    echo "  Run 'envsetup help' for usage."
+    echo ""
+    exit 1
+fi
+
+# Route to the correct command
+case "$1" in
+    init)   cmd_init ;;
+    lang)   cmd_lang "${2:-}" ;;
+    info)   cmd_info ;;
+    help)   cmd_help ;;
+    *)
+        echo ""
+        echo -e "${RED}Error:${RESET} Unknown command '${1}'."
+        echo "  Run 'envsetup help' for usage."
+        echo ""
+        exit 1
+        ;;
+esac
+
