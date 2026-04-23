@@ -199,15 +199,17 @@ FAILED_OPTIONAL=()
 # Like step() but does not exit on failure — records the failure instead.
 # Usage: soft_step "Description" command arg1 arg2 ...
 soft_step() {
-    local desc="$1"
-    shift
-    echo -ne "  ${desc}..."
-    if "$@" >> "$LOG" 2>&1; then
-        echo -e " ${GREEN}✔${RESET}"
-    else
-        echo -e " ${YELLOW}✖ (non-fatal)${RESET}"
-    # Check if a value exists in an array
-	fi
+    local desc="$1"
+    shift
+    echo -ne "  ${desc}..."
+    if "$@" >> "$LOG" 2>&1; then
+        echo -e " ${GREEN}✔${RESET}"
+    else
+        echo -e " ${YELLOW}✖ (non-fatal)${RESET}"
+        FAILED_OPTIONAL+=("$desc")
+    fi
+}
+
 # Usage: in_array "value" "${array[@]}"
 in_array() {
     local needle="$1"
