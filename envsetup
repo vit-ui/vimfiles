@@ -185,10 +185,12 @@ multiselect() {
         _ms_line "$i" "${selected[$i]}" "$cursor" "${items[$i]}"
     done
 
-    # Export selected items into global array
+# Export selected items into global array
     SELECTED_ITEMS=()
     for (( i=0; i<n; i++ )); do
-        [[ "${selected[$i]}" -eq 1 ]] && SELECTED_ITEMS+=("${items[$i]}")
+        if [[ "${selected[$i]}" -eq 1 ]]; then
+            SELECTED_ITEMS+=("${items[$i]}")
+        fi
     done
 }
 
