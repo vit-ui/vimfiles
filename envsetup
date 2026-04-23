@@ -21,6 +21,12 @@ set -euo pipefail
 VIMFILES="$HOME/vimfiles"
 LOG="/tmp/envsetup.log"
 
+# Languages supported by envsetup lang. To add a new language:
+#   1. Add its display name here (used in the init menu and lang command)
+#   2. Add a setup_<lowercasename> function in the LANGUAGE SETUP section
+#   3. Add a case entry in cmd_lang's case statement
+LANGUAGES=("Go" "Python" "Markdown")
+
 # ANSI color codes for terminal output
 GREEN="\033[0;32m"
 RED="\033[0;31m"
@@ -98,51 +104,109 @@ ask_input() {
     printf -v "$varname" '%s' "$value"
 }
 
+# Print a single item line for the multiselect menu.
+# Usage: _ms_line index selected cursor text
+_ms_line() {
+    local idx="$1" sel="$2" cur="$3" text="$4"
+    # Clear the line before writing to avoid artifacts from previous render
+    printf '\r\033[K'
+    if (( idx == cur )); then
+        if (( sel )); then
+            echo -e "  ${GREEN}▶ [x]${RESET} ${BOLD}${text}${RESET}"
+        else
+            echo -e "    ▶ [ ] ${BOLD}${text}${RESET}"
+        fi
+    else
+        if (( sel )); then
+            echo -e "  ${GREEN}  [x]${RESET} ${text}"
+        else
+            echo    "    [ ] ${text}"
+        fi
+    fi
+}
+
 # Print a multi-select menu. Sets global array SELECTED_ITEMS.
 # Usage: multiselect "Title" item1 item2 item3
-# User toggles with numbers, confirms with Enter on empty input.
+# ↑/↓ moves the cursor, Space toggles, Enter confirms.
+# The header is printed once and never redrawn — only item lines update.
 multiselect() {
     local title="$1"
     shift
     local items=("$@")
-    # selected[i]=1 means item i is selected, 0 means not
+    local n=${#items[@]}
     local selected=()
-    for _ in "${items[@]}"; do
-        selected+=(0)
+    local cursor=0
+
+    for _item in "${items[@]}"; do selected+=(0); done
+
+    echo ""
+    echo -e "  ${BOLD}${title}${RESET}"
+    echo -e "  ${YELLOW}(↑↓ navigate   Space select   Enter confirm)${RESET}"
+    echo ""
+
+    # Print all items for the first time
+    local i
+    for (( i=0; i<n; i++ )); do
+        _ms_line "$i" "${selected[$i]}" "$cursor" "${items[$i]}"
     done
 
+    # Input loop — redraws only the item lines, not the header
     while true; do
-        echo ""
-        echo -e "  ${BOLD}${title}${RESET} (enter number to toggle, Enter to confirm):"
-        for i in "${!items[@]}"; do
-            if [[ "${selected[$i]}" -eq 1 ]]; then
-                echo -e "    ${GREEN}[x]${RESET} $((i+1))) ${items[$i]}"
-            else
-                echo    "    [ ] $((i+1))) ${items[$i]}"
-            fi
+        # Move cursor back up to the first item line
+        printf '\033[%dA' "$n"
+
+        for (( i=0; i<n; i++ )); do
+            _ms_line "$i" "${selected[$i]}" "$cursor" "${items[$i]}"
         done
-        read -rp "  > " choice
-        # Empty input confirms selection
-        if [[ -z "$choice" ]]; then
+
+        # Read a single keypress without echoing
+        local key seq
+        IFS= read -rsn1 key
+
+        if [[ "$key" == $'\x1b' ]]; then
+            # Escape sequence (arrow key) — read 2 more chars with a short timeout
+            IFS= read -rsn2 -t 0.1 seq || seq=""
+            case "$seq" in
+                '[A') (( cursor > 0 )) && (( cursor-- )) ;;   # up arrow
+                '[B') (( cursor < n-1 )) && (( cursor++ )) ;; # down arrow
+            esac
+        elif [[ "$key" == ' ' ]]; then
+            # Space — toggle current item
+            selected[$cursor]=$(( 1 - selected[$cursor] ))
+        elif [[ "$key" == $'\n' || "$key" == '' ]]; then
+            # Enter — confirm selection
             break
         fi
-        # Toggle the selected item if input is a valid number
-        if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#items[@]} )); then
-            local idx=$((choice - 1))
-            selected[$idx]=$(( 1 - selected[$idx] ))
-        fi
+    done
+
+    # Final redraw to show confirmed state cleanly
+    printf '\033[%dA' "$n"
+    for (( i=0; i<n; i++ )); do
+        _ms_line "$i" "${selected[$i]}" "$cursor" "${items[$i]}"
     done
 
     # Export selected items into global array
     SELECTED_ITEMS=()
-    for i in "${!items[@]}"; do
-        if [[ "${selected[$i]}" -eq 1 ]]; then
-            SELECTED_ITEMS+=("${items[$i]}")
-        fi
+    for (( i=0; i<n; i++ )); do
+        [[ "${selected[$i]}" -eq 1 ]] && SELECTED_ITEMS+=("${items[$i]}")
     done
 }
 
-# Check if a value exists in an array
+# Global array to collect non-fatal failures from optional steps.
+# Populated by soft_step. Printed at the end of cmd_init.
+FAILED_OPTIONAL=()
+
+# Like step() but does not exit on failure — records the failure instead.
+# Usage: soft_step "Description" command arg1 arg2 ...
+soft_step() {
+    local desc="$1"
+    shift
+    echo -ne "  ${desc}..."
+    if "$@" >> "$LOG" 2>&1; then
+        echo -e " ${GREEN}✔${RESET}"
+    else
+        echo -e " ${YELLOW}✖ (non-fatal)${RESET}"
+    # Check if a value exists in an array
 # Usage: in_array "value" "${array[@]}"
 in_array() {
     local needle="$1"
@@ -287,7 +351,7 @@ install_system_tools() {
         ok "shellcheck already installed — skipping"
     fi
 
-    # glow: terminal Markdown renderer (used by :Preview and setupdocs alias)
+    # glow: terminal Markdown renderer (used by :Preview and \mp in Vim)
     if ! command -v glow > /dev/null 2>&1; then
         case "$PKG" in
             apt)
@@ -302,12 +366,24 @@ install_system_tools() {
                 step "Installing glow" sudo apt-get install -y glow
                 ;;
             dnf|pacman|brew)
-                # glow is available in most package managers
                 step "Installing glow" pkg_install glow
                 ;;
         esac
     else
         ok "glow already installed — skipping"
+    fi
+
+    # mdless: full-featured Markdown viewer used by setupdocs and envsetup info.
+    # Renders headings with emphasis, handles links, scrollable with vim keys.
+    # Requires Ruby (gem), which ships with most Linux distros and macOS.
+    if ! command -v mdless > /dev/null 2>&1; then
+        if command -v gem > /dev/null 2>&1; then
+            step "Installing mdless" gem install mdless
+        else
+            warn "Ruby gem not found — skipping mdless install. Install Ruby then run: gem install mdless"
+        fi
+    else
+        ok "mdless already installed — skipping"
     fi
 }
 
@@ -368,10 +444,11 @@ install_envsetup_to_path() {
         ok "envsetup already on PATH — skipping"
         return
     fi
-    step "Adding envsetup to PATH" \
-        sudo ln -sf "$VIMFILES/envsetup" "$target"
+    # Make the script executable first, then symlink
     step "Making envsetup executable" \
         chmod +x "$VIMFILES/envsetup"
+    step "Adding envsetup to PATH" \
+        sudo ln -sf "$VIMFILES/envsetup" "$target"
 }
 
 # Install optional tool: ripgrep
@@ -380,7 +457,7 @@ install_ripgrep() {
         ok "ripgrep already installed — skipping"
         return
     fi
-    step "Installing ripgrep" pkg_install ripgrep
+    soft_step "Installing ripgrep" pkg_install ripgrep
 }
 
 # Install optional tool: GitHub CLI
@@ -390,7 +467,7 @@ install_gh() {
         return
     fi
     # Use webi for a distro-agnostic install that always gets the latest version
-    step "Installing GitHub CLI" bash -c "curl -sS https://webi.sh/gh | sh"
+    soft_step "Installing GitHub CLI" bash -c "curl -sS https://webi.sh/gh | sh"
 }
 
 # -----------------------------------------------------------------------------
@@ -417,7 +494,11 @@ setup_go() {
         local arch
         arch=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 
-        local tarball="${go_ver}.linux-${arch}.tar.gz"
+        # Detect OS and map to Go's naming convention (linux or darwin for macOS)
+        local os
+        os=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+        local tarball="${go_ver}.${os}-${arch}.tar.gz"
         local url="https://go.dev/dl/${tarball}"
 
         step "Downloading Go ${go_ver}" curl -Lo "/tmp/${tarball}" "$url"
@@ -439,9 +520,17 @@ setup_go() {
         step "Installing Delve" go install github.com/go-delve/delve/cmd/dlv@latest
     fi
 
-    # Install gopls and vim-go tooling inside Vim
-    step "Installing Go tooling (gopls + vim-go)" \
-        vim -es -u "$VIMFILES/vimrc" +GoUpdateBinaries +qall
+    # Install gopls and vim-go tooling inside Vim.
+    # Check if gopls is already installed at ~/go/bin/gopls before running —
+    # GoUpdateBinaries downloads several binaries and takes a few minutes.
+    # timeout 300 kills it after 5 minutes to prevent indefinite hangs.
+    if [[ -f "$HOME/go/bin/gopls" ]]; then
+        ok "Go tooling (gopls) already installed — skipping GoUpdateBinaries"
+    else
+        warn "Installing Go tooling — this may take a few minutes..."
+        step "Installing Go tooling (gopls + vim-go)" \
+            timeout 300 vim -es -u "$VIMFILES/vimrc" +GoUpdateBinaries +qall
+    fi
 
     warn "Debugger setup is per-project. Run :InstallDebugger delve in your project root."
 }
@@ -539,13 +628,18 @@ cmd_help() {
     echo ""
 }
 
-# Open the README with glow
+# Open the README with mdless (preferred — full heading/link rendering).
+# Falls back to glow -p if mdless is not installed.
 cmd_info() {
     check_vimfiles
-    if ! command -v glow > /dev/null 2>&1; then
-        error "glow is not installed. Run 'envsetup init' first."
+    if command -v mdless > /dev/null 2>&1; then
+        mdless "$VIMFILES/README.md"
+    elif command -v glow > /dev/null 2>&1; then
+        warn "mdless not found — falling back to glow. Install mdless for better rendering."
+        glow -p "$VIMFILES/README.md"
+    else
+        error "Neither mdless nor glow is installed. Run 'envsetup init' first."
     fi
-    glow "$VIMFILES/README.md" | less
 }
 
 # Set up a specific language
@@ -599,15 +693,42 @@ cmd_init() {
     echo -e "  Detected package manager: ${BOLD}${PKG}${RESET}"
     echo ""
 
-    # --- Gather user input ---
-
-    ask_input "Git name (for commits)" GIT_NAME
-    ask_input "Git email (for commits)" GIT_EMAIL
+    # Several steps require sudo. Cache credentials upfront so the password
+    # prompt appears here on its own line rather than inline with step output.
+    echo -e "  ${BOLD}Some steps require sudo — please authenticate:${RESET}"
+    sudo -v
     echo ""
 
-    # Language selection — multi-select menu
+    # --- Gather user input ---
+
+    # Check if git is already configured. If so, show current values and ask
+    # if the user wants to change them rather than prompting unconditionally.
+    local current_git_name
+    local current_git_email
+    current_git_name=$(git config --global user.name 2>/dev/null || true)
+    current_git_email=$(git config --global user.email 2>/dev/null || true)
+
+    if [[ -n "$current_git_name" && -n "$current_git_email" ]]; then
+        echo -e "  Git already configured:"
+        echo -e "    Name:  ${BOLD}${current_git_name}${RESET}"
+        echo -e "    Email: ${BOLD}${current_git_email}${RESET}"
+        if ask_yes_no "Change git config?"; then
+            ask_input "Git name (for commits)" GIT_NAME
+            ask_input "Git email (for commits)" GIT_EMAIL
+        else
+            ok "Keeping existing git config"
+            GIT_NAME="$current_git_name"
+            GIT_EMAIL="$current_git_email"
+        fi
+    else
+        ask_input "Git name (for commits)" GIT_NAME
+        ask_input "Git email (for commits)" GIT_EMAIL
+    fi
+    echo ""
+
+    # Language selection — multi-select menu built from the LANGUAGES constant
     multiselect "Which languages would you like to set up?" \
-        "Go" "Python" "Markdown" "None — I will do this later (envsetup lang <name>)"
+        "${LANGUAGES[@]}" "None — I will do this later (envsetup lang <n>)"
     LANG_SELECTION=("${SELECTED_ITEMS[@]}")
     echo ""
 
@@ -617,11 +738,19 @@ cmd_init() {
     OPT_SELECTION=("${SELECTED_ITEMS[@]}")
     echo ""
 
-    # GitHub CLI auth — only ask if gh was selected
+    # GitHub CLI auth — only ask if gh was selected.
+    # Check if already authenticated first; if so, ask if user wants to re-auth.
     DO_GH_AUTH=0
-    if in_array "GitHub CLI (gh)" "${OPT_SELECTION[@]}"; then
-        if ask_yes_no "Set up GitHub CLI authentication now?"; then
-            DO_GH_AUTH=1
+    if [[ ${#OPT_SELECTION[@]} -gt 0 ]] && in_array "GitHub CLI (gh)" "${OPT_SELECTION[@]}"; then
+        if gh auth status > /dev/null 2>&1; then
+            ok "GitHub CLI already authenticated"
+            if ask_yes_no "Re-authenticate?"; then
+                DO_GH_AUTH=1
+            fi
+        else
+            if ask_yes_no "Set up GitHub CLI authentication now?"; then
+                DO_GH_AUTH=1
+            fi
         fi
         echo ""
     fi
@@ -643,16 +772,20 @@ cmd_init() {
 
     # --- Run optional tool installs ---
 
-    if in_array "ripgrep (fast code search)" "${OPT_SELECTION[@]}"; then
+    if [[ ${#OPT_SELECTION[@]} -gt 0 ]] && in_array "ripgrep (fast code search)" "${OPT_SELECTION[@]}"; then
         install_ripgrep
     fi
 
-    if in_array "GitHub CLI (gh)" "${OPT_SELECTION[@]}"; then
+    if [[ ${#OPT_SELECTION[@]} -gt 0 ]] && in_array "GitHub CLI (gh)" "${OPT_SELECTION[@]}"; then
         install_gh
         if [[ "$DO_GH_AUTH" -eq 1 ]]; then
             echo ""
             echo -e "  ${BOLD}Authenticating GitHub CLI...${RESET}"
-            gh auth login
+            # gh auth login is interactive — run directly, not via soft_step,
+            # but catch failure and record it non-fatally
+            if ! gh auth login; then
+                FAILED_OPTIONAL+=("GitHub CLI authentication")
+            fi
         fi
     fi
 
@@ -669,10 +802,26 @@ cmd_init() {
 
     # --- Done ---
 
+    # Source bashrc within this script process so any remaining steps pick up
+    # the new aliases and PATH. The parent terminal still needs a manual reload
+    # since a child process cannot modify the parent she's environment.
+    # shellcheck source=/dev/null
+    source "$HOME/.bashrc" 2>/dev/null || true
+
     echo ""
     echo -e "${GREEN}${BOLD}Setup complete!${RESET}"
     echo ""
-    echo "  Restart your terminal (or run 'source ~/.bashrc') to apply changes."
+
+    # Print any non-fatal failures that occurred during optional steps
+    if [[ ${#FAILED_OPTIONAL[@]} -gt 0 ]]; then
+        echo -e "  ${YELLOW}The following optional steps failed and can be retried manually:${RESET}"
+        for item in "${FAILED_OPTIONAL[@]}"; do
+            echo -e "    ${YELLOW}⚠${RESET}  ${item}"
+        don        echo "  See $LOG for details."
+        echo ""
+    fi
+
+    echo "  Run 'reload' to apply bash changes to this terminal session."
     echo ""
     echo "  To get started:"
     echo "    envsetup info    — open the README"
@@ -684,7 +833,7 @@ cmd_init() {
 # ENTRY POINT
 # -----------------------------------------------------------------------------
 
-# No arguments — print error and show help
+# No arguments — print erd show help
 if [[ $# -eq 0 ]]; then
     echo ""
     echo -e "${RED}Error:${RESET} No command specified."
