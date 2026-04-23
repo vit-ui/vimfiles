@@ -207,6 +207,7 @@ soft_step() {
     else
         echo -e " ${YELLOW}✖ (non-fatal)${RESET}"
     # Check if a value exists in an array
+	fi
 # Usage: in_array "value" "${array[@]}"
 in_array() {
     local needle="$1"
