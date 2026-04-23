@@ -563,17 +563,6 @@ Vimspector panels and `:terminal` buffers as well.
 
 ## Maintenance
 
-### Push local changes
-
-Use when you edit your config locally and want to save it to the repo:
-
-```bash
-cd ~/vimfiles
-git add .
-git commit -m "update config"
-git push
-```
-
 ### Pull remote changes
 
 Use when syncing your environment from the repo (e.g., on a new machine after
@@ -587,3 +576,55 @@ source ~/.bashrc
 
 `source ~/.bashrc` applies any bash changes to the current terminal session
 without restarting it.
+
+### Push local changes
+
+This repo is maintained by the owner. If you want to contribute changes,
+open a pull request:
+
+**1 — Fork the repo**
+
+Via GitHub CLI:
+
+```bash
+gh repo fork vit-ui/vimfiles --clone --remote
+cd vimfiles
+```
+
+`--clone` clones your fork locally. `--remote` adds the original repo as
+an `upstream` remote so you can pull future updates from it.
+
+Via browser: go to [github.com/vit-ui/vimfiles](https://github.com/vit-ui/vimfiles)
+and click **Fork** in the top right.
+
+**2 — If you forked via browser, clone your fork manually**
+
+```bash
+git clone https://github.com/YOUR-USERNAME/vimfiles.git ~/vimfiles
+```
+
+**3 — Make your changes, commit, and push to your fork**
+
+```bash
+cd ~/vimfiles
+git add .
+git commit -m "describe your change"
+git push
+```
+
+**4 — Open a pull request**
+
+Via GitHub CLI:
+
+```bash
+gh pr create --title "your title" --body "describe your change"
+```
+
+Via browser: go to your fork on GitHub and click
+**Contribute → Open pull request**.
+
+---
+
+> If you are the owner pushing directly: switch the remote to SSH
+> (`git remote set-url origin git@github.com:vit-ui/vimfiles.git`),
+> push, then switch back to HTTPS if needed.
