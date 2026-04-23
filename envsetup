@@ -199,15 +199,15 @@ FAILED_OPTIONAL=()
 # Like step() but does not exit on failure — records the failure instead.
 # Usage: soft_step "Description" command arg1 arg2 ...
 soft_step() {
-    local desc="$1"
-    shift
-    echo -ne "  ${desc}..."
-    if "$@" >> "$LOG" 2>&1; then
-        echo -e " ${GREEN}✔${RESET}"
-    else
-        echo -e " ${YELLOW}✖ (non-fatal)${RESET}"
+    local desc="$1"
+    shift
+    echo -ne "  ${desc}..."
+    if "$@" >> "$LOG" 2>&1; then
+        echo -e " ${GREEN}✔${RESET}"
+    else
+        echo -e " ${YELLOW}✖ (non-fatal)${RESET}"
         FAILED_OPTIONAL+=("$desc")
-    fi
+    fi
 }
 
 # Usage: in_array "value" "${array[@]}"
@@ -820,7 +820,8 @@ cmd_init() {
         echo -e "  ${YELLOW}The following optional steps failed and can be retried manually:${RESET}"
         for item in "${FAILED_OPTIONAL[@]}"; do
             echo -e "    ${YELLOW}⚠${RESET}  ${item}"
-        don        echo "  See $LOG for details."
+        done
+		echo "  See $LOG for details."
         echo ""
     fi
 
