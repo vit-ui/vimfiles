@@ -167,8 +167,8 @@ multiselect() {
             # Escape sequence (arrow key) — read 2 more chars with a short timeout
             IFS= read -rsn2 -t 0.1 seq || seq=""
             case "$seq" in
-                '[A') (( cursor > 0 )) && (( cursor-- )) ;;   # up arrow
-                '[B') (( cursor < n-1 )) && (( cursor++ )) ;; # down arrow
+                '[A') (( cursor > 0 )) && cursor=$(( cursor - 1 )) ;;   # up arrow
+                '[B') (( cursor < n-1 )) && cursor=$(( cursor + 2 )) ;; # down arrow
             esac
         elif [[ "$key" == ' ' ]]; then
             # Space — toggle current item
