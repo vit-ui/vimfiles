@@ -194,6 +194,7 @@ extract() {
 # Useful aliases
 alias ..='cd ..'          # replaces your up(1) for the common case
 alias gs='git status'
+alias gfs='git fetch' # git status is called automatically at the end
 alias gl='git log --oneline --graph --decorate'
 alias gcp='git commit && git push'
 alias watch='watch -n 2'  # default interval of 2s
