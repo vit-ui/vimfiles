@@ -130,13 +130,12 @@ multiselect() {
         if [[ "$key" == $'\x1b' ]]; then
             IFS= read -rsn2 -t 0.1 seq || seq=""
             case "$seq" in
-                '[A') [[ "$cursor" -gt 0 ]] && cursor=$(( cursor - 1 )) ;;
-                '[B') [[ "$cursor" -lt $(( n - 1 )) ]] && cursor=$(( cursor + 1 )) ;;
+                '[A') if [[ "$cursor" -gt 0 ]]; then cursor=$(( cursor - 1 )); fi ;;
+                '[B') if [[ "$cursor" -lt $(( n - 1 )) ]]; then cursor=$(( cursor + 1 )); fi ;;
             esac
         elif [[ "$key" == ' ' ]]; then
             selected[$cursor]=$(( 1 - selected[$cursor] ))
         elif [[ "$key" == $'\n' || "$key" == $'\r' || "$key" == '' ]]; then
-            # Fix: match \r (WSL/most terminals) in addition to \n and empty
             break
         fi
 
@@ -147,9 +146,16 @@ multiselect() {
         done
     done
 
+    # Drain any leftover byte from WSL's \r\n Enter sequence.
+    # read -t 0 only checks availability without consuming — use a small
+    # positive timeout so it actually reads and discards the buffered \n.
+    IFS= read -rsn1 -t 0.1 _ 2>/dev/null || true
+
     SELECTED_ITEMS=()
     for (( i=0; i<n; i++ )); do
-        [[ "${selected[$i]}" -eq 1 ]] && SELECTED_ITEMS+=("${items[$i]}")
+        if [[ "${selected[$i]}" -eq 1 ]]; then
+            SELECTED_ITEMS+=("${items[$i]}")
+        fi
     done
 }
 
@@ -259,11 +265,10 @@ install_system_tools() {
     fi
 
     if ! command -v mdless > /dev/null 2>&1; then
-        if command -v gem > /dev/null 2>&1; then
-            soft_step "Installing mdless" gem install mdless
-        else
-            warn "Ruby gem not found — skipping mdless. Install Ruby then: gem install mdless"
+        if ! command -v gem > /dev/null 2>&1; then
+            step "Installing Ruby" pkg_install ruby-full
         fi
+        soft_step "Installing mdless" gem install mdless
     else
         ok "mdless already installed — skipping"
     fi
@@ -305,8 +310,7 @@ install_envsetup_to_path() {
        [[ "$(readlink "$target")" == "$SCRIPT_DIR/envsetup" ]]; then
         ok "envsetup already on PATH — skipping"; return
     fi
-    step "Making envsetup executable" chmod +x "$SCRIPT_DIR/envsetup"
-    step "Adding envsetup to PATH"    sudo ln -sf "$SCRIPT_DIR/envsetup" "$target"
+    step "Adding envsetup to PATH" sudo ln -sf "$SCRIPT_DIR/envsetup" "$target"
 }
 
 install_ripgrep() {

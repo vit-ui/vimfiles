@@ -133,7 +133,8 @@ mdless — terminal Markdown renderer used by `envsetup info` and the `setupdocs
 alias (renders headings and links properly):
 
 ```bash
-apt install mdless
+sudo apt install ruby-full
+sudo gem install mdless
 ```
 
 #### 6 — Add envsetup to PATH

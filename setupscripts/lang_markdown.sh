@@ -30,10 +30,11 @@ fi
 # --- mdless (README viewer, used by envsetup info and setupdocs) ---
 if command -v mdless > /dev/null 2>&1; then
     ok "mdless already installed — skipping"
-elif command -v gem > /dev/null 2>&1; then
-    soft_step "Installing mdless" gem install mdless
 else
-    warn "Ruby gem not found — skipping mdless. Install Ruby then: gem install mdless"
+    if ! command -v gem > /dev/null 2>&1; then
+        step "Installing Ruby" pkg_install ruby-full
+    fi
+    soft_step "Installing mdless" gem install mdless
 fi
 
 # coc-markdownlint, coc-prettier, and coc-marksman are listed in
