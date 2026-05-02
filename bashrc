@@ -203,7 +203,7 @@ alias cdv='cd ~/vimfiles'
 alias evim='vim ~/vimfiles/shortcuts.txt ~/vimfiles/bashrc ~/vimfiles/vimrc'
 alias history='history | less'
 alias reload='source ~/.bashrc'
-alias setupdocs='glow -p ~/vimfiles/README.md | less'
+alias setupdocs='mdless ~/vimfiles/README.md'
 
 # some more ls aliases
 alias ll='ls -alF'

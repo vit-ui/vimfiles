@@ -1,0 +1,521 @@
+#!/usr/bin/env bash
+# =============================================================================
+# envsetup — vimfiles environment setup script
+#
+# Usage:
+#   envsetup init            First-time setup (interactive, idempotent)
+#   envsetup lang <name>     Set up a language: go, python, markdown
+#   envsetup info            Open the README with mdless
+#   envsetup help            Show this help
+#
+# Lives at: ~/vimfiles/setupscripts/envsetup
+# =============================================================================
+
+set -euo pipefail
+
+# Derived from this script's real location — repo can live anywhere.
+# SCRIPT_DIR = .../setupscripts   VIMFILES = repo root (parent)
+SCRIPT_SELF="${BASH_SOURCE[0]}"
+[[ -L "$SCRIPT_SELF" ]] && SCRIPT_SELF="$(readlink "$SCRIPT_SELF")"
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SELF")" && pwd)"
+VIMFILES="$(dirname "$SCRIPT_DIR")"
+LOG="/tmp/envsetup.log"
+
+# -----------------------------------------------------------------------------
+# COLORS
+# -----------------------------------------------------------------------------
+
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+YELLOW="\033[0;33m"
+BOLD="\033[1m"
+RESET="\033[0m"
+
+# -----------------------------------------------------------------------------
+# HELPERS
+# -----------------------------------------------------------------------------
+
+banner() {
+    echo ""
+    echo -e "${BOLD}╔══════════════════════════════════════╗${RESET}"
+    echo -e "${BOLD}║   vimfiles environment setup         ║${RESET}"
+    echo -e "${BOLD}╚══════════════════════════════════════╝${RESET}"
+    echo ""
+}
+
+ok()    { echo -e "  ${GREEN}✔${RESET} $1"; }
+warn()  { echo -e "  ${YELLOW}⚠${RESET}  $1"; }
+error() { echo -e "  ${RED}✖${RESET} $1"; echo "  See $LOG for details."; exit 1; }
+
+step() {
+    local desc="$1"; shift
+    echo -ne "  ${desc}..."
+    if "$@" >> "$LOG" 2>&1; then
+        echo -e " ${GREEN}✔${RESET}"
+    else
+        echo -e " ${RED}✖${RESET}"
+        error "Failed: ${desc}"
+    fi
+}
+
+# Like step() but non-fatal — records the failure and continues.
+soft_step() {
+    local desc="$1"; shift
+    echo -ne "  ${desc}..."
+    if "$@" >> "$LOG" 2>&1; then
+        echo -e " ${GREEN}✔${RESET}"
+    else
+        echo -e " ${YELLOW}✖ (non-fatal)${RESET}"
+        FAILED_OPTIONAL+=("$desc")
+    fi
+}
+
+ask_yes_no() {
+    local prompt="$1" default="${2:-n}" answer
+    if [[ "$default" == "y" ]]; then
+        read -rp "  ${prompt} (Y/n): " answer; answer="${answer:-y}"
+    else
+        read -rp "  ${prompt} (y/N): " answer; answer="${answer:-n}"
+    fi
+    [[ "$answer" =~ ^[Yy]$ ]]
+}
+
+ask_input() {
+    local prompt="$1" varname="$2" value=""
+    while [[ -z "$value" ]]; do
+        read -rp "  ${prompt}: " value
+    done
+    printf -v "$varname" '%s' "$value"
+}
+
+# Multi-select TUI menu. Sets global array SELECTED_ITEMS.
+# Usage: multiselect "Title" item1 item2 ...
+# ↑/↓ moves cursor, Space toggles, Enter confirms (zero selections allowed).
+multiselect() {
+    local title="$1"; shift
+    local items=("$@")
+    local n=${#items[@]}
+    local selected=()
+    local cursor=0
+
+    for _ in "${items[@]}"; do selected+=(0); done
+
+    echo ""
+    echo -e "  ${BOLD}${title}${RESET}"
+    echo -e "  ${YELLOW}(↑↓ navigate   Space select   Enter confirm)${RESET}"
+    echo ""
+
+    # Render one item line. Args: index selected cursor text
+    _render_line() {
+        printf '\r\033[K'   # clear the line before writing
+        if [[ "$1" -eq "$3" ]]; then
+            if [[ "$2" -eq 1 ]]; then echo -e "  ${GREEN}▶ [x]${RESET} ${BOLD}${4}${RESET}"
+            else                       echo -e "    ▶ [ ] ${BOLD}${4}${RESET}"; fi
+        else
+            if [[ "$2" -eq 1 ]]; then echo -e "  ${GREEN}  [x]${RESET} ${4}"
+            else                       echo    "    [ ] ${4}"; fi
+        fi
+    }
+
+    # Initial render
+    local i
+    for (( i=0; i<n; i++ )); do
+        _render_line "$i" "${selected[$i]}" "$cursor" "${items[$i]}"
+    done
+
+    local key seq
+    while true; do
+        IFS= read -rsn1 key
+
+        if [[ "$key" == $'\x1b' ]]; then
+            IFS= read -rsn2 -t 0.1 seq || seq=""
+            case "$seq" in
+                '[A') [[ "$cursor" -gt 0 ]] && cursor=$(( cursor - 1 )) ;;
+                '[B') [[ "$cursor" -lt $(( n - 1 )) ]] && cursor=$(( cursor + 1 )) ;;
+            esac
+        elif [[ "$key" == ' ' ]]; then
+            selected[$cursor]=$(( 1 - selected[$cursor] ))
+        elif [[ "$key" == $'\n' || "$key" == $'\r' || "$key" == '' ]]; then
+            # Fix: match \r (WSL/most terminals) in addition to \n and empty
+            break
+        fi
+
+        # Redraw — only reached when NOT breaking (Enter already exited above)
+        printf '\033[%dA' "$n"
+        for (( i=0; i<n; i++ )); do
+            _render_line "$i" "${selected[$i]}" "$cursor" "${items[$i]}"
+        done
+    done
+
+    SELECTED_ITEMS=()
+    for (( i=0; i<n; i++ )); do
+        [[ "${selected[$i]}" -eq 1 ]] && SELECTED_ITEMS+=("${items[$i]}")
+    done
+}
+
+# Accumulates non-fatal failures. Printed at the end of cmd_init.
+FAILED_OPTIONAL=()
+
+# -----------------------------------------------------------------------------
+# PREFLIGHT
+# -----------------------------------------------------------------------------
+
+check_vimfiles() {
+    if [[ ! -d "$VIMFILES" ]]; then
+        echo ""
+        echo -e "${RED}Error:${RESET} vimfiles repo not found at ${BOLD}$VIMFILES${RESET}"
+        echo ""
+        echo "  Clone it:   git clone https://github.com/vit-ui/vimfiles.git ~/vimfiles"
+        echo "  Or symlink: ln -sf /path/to/your/vimfiles ~/vimfiles"
+        echo ""
+        exit 1
+    fi
+}
+
+detect_pkg_manager() {
+    if   command -v apt    > /dev/null 2>&1; then PKG="apt"
+    elif command -v dnf    > /dev/null 2>&1; then PKG="dnf"
+    elif command -v pacman > /dev/null 2>&1; then PKG="pacman"
+    elif command -v brew   > /dev/null 2>&1; then PKG="brew"
+    else error "No supported package manager found (apt, dnf, pacman, brew)."; fi
+}
+
+pkg_install() {
+    case "$PKG" in
+        apt)    sudo apt-get install -y "$1" ;;
+        dnf)    sudo dnf install -y "$1" ;;
+        pacman) sudo pacman -S --noconfirm "$1" ;;
+        brew)   brew install "$1" ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# INSTALL STEPS
+# -----------------------------------------------------------------------------
+
+install_vim() {
+    if command -v vim > /dev/null 2>&1; then
+        local ver major
+        ver=$(vim --version | head -1 | grep -o '[0-9]\+\.[0-9]\+' | head -1)
+        major=$(echo "$ver" | cut -d. -f1)
+        if [[ "$major" -ge 9 ]]; then ok "Vim ${ver} already installed — skipping"; return; fi
+    fi
+    case "$PKG" in
+        apt)
+            step "Adding Vim PPA" sudo add-apt-repository -y ppa:jonathonf/vim
+            step "Updating apt"   sudo apt-get update -q
+            step "Installing Vim" sudo apt-get install -y vim
+            ;;
+        dnf|pacman|brew) step "Installing Vim" pkg_install vim ;;
+    esac
+}
+
+install_node() {
+    if command -v node > /dev/null 2>&1; then
+        ok "Node.js $(node --version) already installed — skipping"; return
+    fi
+    local nvm_ver
+    nvm_ver=$(curl -sL https://api.github.com/repos/nvm-sh/nvm/releases/latest \
+        | grep '"tag_name"' | cut -d'"' -f4)
+    step "Installing nvm ${nvm_ver}" \
+        bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_ver}/install.sh | bash"
+    export NVM_DIR="$HOME/.nvm"
+    # shellcheck source=/dev/null
+    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" || true
+    step "Installing Node.js LTS"         nvm install --lts
+    step "Setting Node.js LTS as default" nvm alias default lts/*
+}
+
+install_system_tools() {
+    if ! command -v ctags > /dev/null 2>&1; then
+        step "Installing universal-ctags" pkg_install universal-ctags
+    else
+        ok "ctags already installed — skipping"
+    fi
+
+    if ! command -v shellcheck > /dev/null 2>&1; then
+        step "Installing shellcheck" pkg_install shellcheck
+    else
+        ok "shellcheck already installed — skipping"
+    fi
+
+    if ! command -v glow > /dev/null 2>&1; then
+        case "$PKG" in
+            apt)
+                step "Adding glow apt repo" bash -c "
+                    sudo mkdir -p /etc/apt/keyrings
+                    curl -fsSL https://repo.charm.sh/apt/gpg.key \
+                        | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+                    echo 'deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *' \
+                        | sudo tee /etc/apt/sources.list.d/charm.list
+                    sudo apt-get update -q
+                "
+                step "Installing glow" sudo apt-get install -y glow
+                ;;
+            dnf|pacman|brew) step "Installing glow" pkg_install glow ;;
+        esac
+    else
+        ok "glow already installed — skipping"
+    fi
+
+    if ! command -v mdless > /dev/null 2>&1; then
+        if command -v gem > /dev/null 2>&1; then
+            soft_step "Installing mdless" gem install mdless
+        else
+            warn "Ruby gem not found — skipping mdless. Install Ruby then: gem install mdless"
+        fi
+    else
+        ok "mdless already installed — skipping"
+    fi
+}
+
+link_config_files() {
+    step "Linking vimrc"  ln -sf "$VIMFILES/vimrc"  "$HOME/.vimrc"
+    step "Linking bashrc" ln -sf "$VIMFILES/bashrc" "$HOME/.bashrc"
+}
+
+configure_git() {
+    step "Setting git user.name"  git config --global user.name  "$1"
+    step "Setting git user.email" git config --global user.email "$2"
+    step "Setting pull.rebase"    git config --global pull.rebase true
+}
+
+set_remote_https() {
+    local current
+    current=$(git -C "$VIMFILES" remote get-url origin 2>/dev/null || true)
+    if [[ "$current" == https://* ]]; then ok "Remote already HTTPS — skipping"; return; fi
+    step "Setting remote to HTTPS" \
+        git -C "$VIMFILES" remote set-url origin https://github.com/vit-ui/vimfiles.git
+}
+
+install_vim_plug() {
+    local plug_path="$HOME/.vim/autoload/plug.vim"
+    if [[ -f "$plug_path" ]]; then ok "vim-plug already installed — skipping"; return; fi
+    step "Installing vim-plug" curl -fLo "$plug_path" --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+}
+
+install_vim_plugins() {
+    step "Installing Vim plugins" vim -es -u "$VIMFILES/vimrc" +PlugInstall +qall
+}
+
+install_envsetup_to_path() {
+    local target="/usr/local/bin/envsetup"
+    if [[ -L "$target" ]] && \
+       [[ "$(readlink "$target")" == "$SCRIPT_DIR/envsetup" ]]; then
+        ok "envsetup already on PATH — skipping"; return
+    fi
+    step "Making envsetup executable" chmod +x "$SCRIPT_DIR/envsetup"
+    step "Adding envsetup to PATH"    sudo ln -sf "$SCRIPT_DIR/envsetup" "$target"
+}
+
+install_ripgrep() {
+    if command -v rg > /dev/null 2>&1; then ok "ripgrep already installed — skipping"; return; fi
+    soft_step "Installing ripgrep" pkg_install ripgrep
+}
+
+install_gh() {
+    if command -v gh > /dev/null 2>&1; then ok "gh already installed — skipping"; return; fi
+    soft_step "Installing GitHub CLI" bash -c "curl -sS https://webi.sh/gh | sh"
+}
+
+# -----------------------------------------------------------------------------
+# LANGUAGE SETUP
+# Sources lang_<name>.sh from the same directory (setupscripts/).
+# Each file receives all helper functions and variables via the sourcing shell.
+# -----------------------------------------------------------------------------
+
+run_lang() {
+    local lang="$1"
+    local file="$SCRIPT_DIR/lang_${lang}.sh"
+    [[ -f "$file" ]] || error "No setup file found for language '${lang}' (looked for ${file})"
+    # shellcheck source=/dev/null
+    source "$file"
+}
+
+# -----------------------------------------------------------------------------
+# COMMANDS
+# -----------------------------------------------------------------------------
+
+cmd_help() {
+    echo ""
+    echo -e "${BOLD}envsetup${RESET} — vimfiles dev environment setup"
+    echo ""
+    echo "  Usage: envsetup <command> [args]"
+    echo ""
+    echo "  Commands:"
+    echo "    init              First-time setup (interactive, safe to re-run)"
+    echo "    lang <name>       Set up a language: go, python, markdown"
+    echo "    info              Open the README with mdless"
+    echo "    help              Show this help"
+    echo ""
+    echo "  Note: debugger setup is per-project."
+    echo "        Run :InstallDebugger <adapter> in Vim from your project root."
+    echo ""
+}
+
+cmd_info() {
+    check_vimfiles
+    if command -v mdless > /dev/null 2>&1; then
+        mdless "$VIMFILES/README.md"
+    else
+        error "mdless is not installed. Install it with: gem install mdless"
+    fi
+}
+
+cmd_lang() {
+    local lang="${1:-}"
+    if [[ -z "$lang" ]]; then
+        echo -e "\n${RED}Error:${RESET} No language specified."
+        echo "  Usage: envsetup lang <name>   (go, python, markdown)"
+        echo ""
+        exit 1
+    fi
+    check_vimfiles
+    detect_pkg_manager
+    echo "envsetup lang $lang — $(date)" > "$LOG"
+    run_lang "$lang"
+    echo ""
+    echo -e "${GREEN}${BOLD}Done!${RESET} Language '${lang}' is ready."
+    echo "  Run 'envsetup info' to open the README."
+    echo ""
+}
+
+cmd_init() {
+    check_vimfiles
+    detect_pkg_manager
+    echo "envsetup init — $(date)" > "$LOG"
+
+    banner
+    echo -e "  Detected package manager: ${BOLD}${PKG}${RESET}"
+    echo ""
+
+    echo -e "  ${BOLD}Some steps require sudo — please authenticate:${RESET}"
+    sudo -v || error "sudo authentication failed."
+    echo ""
+
+    # --- Git config ---
+    local GIT_NAME GIT_EMAIL
+    local current_name current_email
+    current_name=$(git config --global user.name  2>/dev/null || true)
+    current_email=$(git config --global user.email 2>/dev/null || true)
+
+    if [[ -n "$current_name" && -n "$current_email" ]]; then
+        echo -e "  Git already configured:"
+        echo -e "    Name:  ${BOLD}${current_name}${RESET}"
+        echo -e "    Email: ${BOLD}${current_email}${RESET}"
+        if ask_yes_no "Change git config?"; then
+            ask_input "Git name"  GIT_NAME
+            ask_input "Git email" GIT_EMAIL
+        else
+            ok "Keeping existing git config"
+            GIT_NAME="$current_name"; GIT_EMAIL="$current_email"
+        fi
+    else
+        ask_input "Git name (for commits)"  GIT_NAME
+        ask_input "Git email (for commits)" GIT_EMAIL
+    fi
+    echo ""
+
+    # --- Language and optional tool selection ---
+    multiselect "Which languages would you like to set up?" \
+        "Go" "Python" "Markdown"
+    local LANG_SELECTION=("${SELECTED_ITEMS[@]}")
+
+    multiselect "Install optional tools?" \
+        "ripgrep" "GitHub CLI (gh)"
+    local OPT_SELECTION=("${SELECTED_ITEMS[@]}")
+    echo ""
+
+    # --- GitHub auth (only ask if gh was selected) ---
+    local DO_GH_AUTH=0
+    for opt in "${OPT_SELECTION[@]}"; do
+        if [[ "$opt" == "GitHub CLI (gh)" ]]; then
+            if gh auth status > /dev/null 2>&1; then
+                ok "GitHub CLI already authenticated"
+                ask_yes_no "Re-authenticate?" && DO_GH_AUTH=1
+            else
+                ask_yes_no "Set up GitHub CLI authentication now?" && DO_GH_AUTH=1
+            fi
+            echo ""
+            break
+        fi
+    done
+
+    # --- Required setup steps ---
+    echo -e "  ${BOLD}Running setup...${RESET}"
+    echo ""
+
+    install_vim
+    install_node
+    install_system_tools
+    link_config_files
+    configure_git "$GIT_NAME" "$GIT_EMAIL"
+    set_remote_https
+    install_vim_plug
+    install_vim_plugins
+    install_envsetup_to_path
+
+    # --- Optional tools ---
+    for opt in "${OPT_SELECTION[@]}"; do
+        case "$opt" in
+            "ripgrep") install_ripgrep ;;
+            "GitHub CLI (gh)")
+                install_gh
+                if [[ "$DO_GH_AUTH" -eq 1 ]]; then
+                    echo ""
+                    echo -e "  ${BOLD}Authenticating GitHub CLI...${RESET}"
+                    gh auth login || FAILED_OPTIONAL+=("GitHub CLI authentication")
+                fi
+                ;;
+        esac
+    done
+
+    # --- Language setups ---
+    # ${lang,,} lowercases the string: Go -> go, Python -> python
+    for lang in "${LANG_SELECTION[@]}"; do
+        ( run_lang "${lang,,}" ) || \
+            FAILED_OPTIONAL+=("${lang} setup — retry with: envsetup lang ${lang,,}")
+    done
+
+    # Apply bash changes to this shell session
+    # shellcheck source=/dev/null
+    source "$HOME/.bashrc" 2>/dev/null || true
+
+    echo ""
+    echo -e "${GREEN}${BOLD}Setup complete!${RESET}"
+    echo ""
+
+    if [[ ${#FAILED_OPTIONAL[@]} -gt 0 ]]; then
+        echo -e "  ${YELLOW}The following optional steps failed:${RESET}"
+        for item in "${FAILED_OPTIONAL[@]}"; do
+            echo -e "    ${YELLOW}⚠${RESET}  ${item}"
+        done
+        echo "  See $LOG for details."
+        echo ""
+    fi
+
+    echo "  Run 'reload' to apply bash changes to this terminal session."
+    echo "  Run 'envsetup info' to open the README."
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
+# ENTRY POINT
+# -----------------------------------------------------------------------------
+
+if [[ $# -eq 0 ]]; then
+    echo -e "\n${RED}Error:${RESET} No command specified. Run 'envsetup help' for usage.\n"
+    exit 1
+fi
+
+case "$1" in
+    init) cmd_init ;;
+    lang) cmd_lang "${2:-}" ;;
+    info) cmd_info ;;
+    help) cmd_help ;;
+    *)
+        echo -e "\n${RED}Error:${RESET} Unknown command '${1}'. Run 'envsetup help' for usage.\n"
+        exit 1
+        ;;
+esac

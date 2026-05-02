@@ -11,7 +11,10 @@ Vimspector.
 | `vimrc`         | Vim config                                     |
 | `bashrc`        | Bash config                                    |
 | `shortcuts.txt` | Quick reference for all shortcuts and commands |
-| `envsetup`      | Setup script for new machines                  |
+| `setupscripts/envsetup`        | Setup script for new machines          |
+| `setupscripts/lang_go.sh`      | Go language setup                      |
+| `setupscripts/lang_python.sh`  | Python language setup                  |
+| `setupscripts/lang_markdown.sh`| Markdown language setup                |
 
 ---
 
@@ -133,8 +136,8 @@ If you ran `envsetup init`, this is done automatically. If you are doing the
 setup manually:
 
 ```bash
-chmod +x ~/vimfiles/envsetup
-sudo ln -sf ~/vimfiles/envsetup /usr/local/bin/envsetup
+chmod +x ~/vimfiles/setupscripts/envsetup
+sudo ln -sf ~/vimfiles/setupscripts/envsetup /usr/local/bin/envsetup
 ```
 
 ---
@@ -186,7 +189,7 @@ and brew systems.
 ```bash
 envsetup init              # First-time setup — interactive
 envsetup lang go           # Set up Go (also: python, markdown)
-envsetup info              # Open this README with glow
+envsetup info              # Open this README with mdless
 envsetup help              # Show usage
 ```
 
@@ -535,7 +538,7 @@ functions worth knowing by name:
 | `cdv`        | Jump to `~/vimfiles`                                    |
 | `evim`       | Open `vimrc`, `bashrc`, and `shortcuts.txt` in splits   |
 | `shortcuts`  | Open `shortcuts.txt` in less for reading                |
-| `setupdocs`  | Open this README with glow                              |
+| `setupdocs`  | Open this README with mdless                            |
 | `gcp`        | `git commit && git push` in one step                    |
 
 ### UI Reference

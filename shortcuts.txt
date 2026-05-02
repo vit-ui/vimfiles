@@ -176,7 +176,7 @@ la                      ls -A (all files, no details)
 l                       ls -CF
 history                 Pipe history output through less for scrollable reading
 reload                  source ~/.bashrc — apply bashrc changes to current session
-setupdocs               Open the vimfiles README with glow in pager mode
+setupdocs               Open the vimfiles README with mdless
 
 mkcd <dir>              Create directory and cd into it immediately
 up [n]                  Go up N directories  e.g. up 3 = cd ../../..
@@ -312,7 +312,7 @@ envsetup init           First-time interactive setup — installs Vim, Node.js,
 envsetup lang go        Set up Go development environment
 envsetup lang python    Set up Python development environment
 envsetup lang markdown  Set up Markdown environment
-envsetup info           Open the README with glow (same as setupdocs)
+envsetup info           Open the README with mdless (same as setupdocs)
 envsetup help           Show usage and available commands
 
                         Note: debugger setup is per-project.
