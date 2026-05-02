@@ -120,14 +120,20 @@ diagnostics in `.sh` and `.bashrc` files:
 sudo apt install shellcheck
 ```
 
-glow — terminal Markdown renderer, used by `:Preview`, `\mp`, and the
-`setupdocs` alias:
+glow — terminal Markdown renderer, used by `:Preview` and `\mp`:
 
 ```bash
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
 echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
 sudo apt update && sudo apt install glow
+```
+
+mdless — terminal Markdown renderer used by `envsetup info` and the `setupdocs`
+alias (renders headings and links properly):
+
+```bash
+apt install mdless
 ```
 
 #### 6 — Add envsetup to PATH
@@ -397,7 +403,10 @@ See [Debugging](#debugging-vimspector--dap) for how this works.
 
 ### Requirements
 
-- glow (terminal Markdown renderer — installed in First-Time Setup step 5)
+- glow (terminal Markdown renderer — installed in First-Time Setup step 5,
+  used by `:Preview` and `\mp` in Vim)
+- mdless (README viewer — installed in First-Time Setup step 5,
+  used by `envsetup info` and `setupdocs`)
 
 Three CoC extensions handle Markdown automatically after `:PlugInstall`:
 coc-markdownlint (lints style violations as you type and on save),
