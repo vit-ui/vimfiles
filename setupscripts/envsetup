@@ -268,7 +268,7 @@ install_system_tools() {
         if ! command -v gem > /dev/null 2>&1; then
             step "Installing Ruby" pkg_install ruby-full
         fi
-        soft_step "Installing mdless" gem install mdless
+        soft_step "Installing mdless" sudo gem install mdless
     else
         ok "mdless already installed — skipping"
     fi

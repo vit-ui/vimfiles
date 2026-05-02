@@ -34,7 +34,7 @@ else
     if ! command -v gem > /dev/null 2>&1; then
         step "Installing Ruby" pkg_install ruby-full
     fi
-    soft_step "Installing mdless" gem install mdless
+    soft_step "Installing mdless" sudo gem install mdless
 fi
 
 # coc-markdownlint, coc-prettier, and coc-marksman are listed in
