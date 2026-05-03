@@ -118,6 +118,12 @@ fi
 # 				  MY CHANGES 
 # =============================================
 
+# Derive repo root from the real location of this file
+_BASHRC_SELF="${BASH_SOURCE[0]}"
+[[ -L "$_BASHRC_SELF" ]] && _BASHRC_SELF="$(readlink "$_BASHRC_SELF")"
+VIMFILES="$(cd "$(dirname "$_BASHRC_SELF")" && pwd)"
+unset _BASHRC_SELF
+
 export PATH=$PATH:$HOME/go/bin
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$HOME/.local/bin
@@ -192,18 +198,20 @@ extract() {
 }
 
 # Useful aliases
-alias ..='cd ..'          # replaces your up(1) for the common case
 alias gs='git status'
 alias gfs='git fetch' # git status is called automatically at the end
 alias gl='git log --oneline --graph --decorate'
 alias gcp='git commit && git push'
+
+alias ..='cd ..'          # replaces your up(1) for the common case
 alias watch='watch -n 2'  # default interval of 2s
-alias shortcuts='less ~/vimfiles/shortcuts.txt'
-alias cdv='cd ~/vimfiles'
-alias evim='vim ~/vimfiles/shortcuts.txt ~/vimfiles/bashrc ~/vimfiles/vimrc'
 alias history='history | less'
 alias reload='source ~/.bashrc'
-alias setupdocs='mdless ~/vimfiles/README.md'
+
+alias shortcuts='less "$VIMFILES/shortcuts.txt"'
+alias cdv='cd "$VIMFILES"'
+alias evim='vim "$VIMFILES/shortcuts.txt" "$VIMFILES/bashrc" "$VIMFILES/vimrc"'
+alias setupdocs='mdless "$VIMFILES/README.md"'
 
 # some more ls aliases
 alias ll='ls -alF'

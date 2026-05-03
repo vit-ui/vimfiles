@@ -63,7 +63,8 @@ Install Node.js via nvm (Node Version Manager — installs Node without sudo and
 works on all platforms):
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+NVM_VER=$(curl -sL https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VER}/install.sh" | bash
 source ~/.nvm/nvm.sh
 nvm install --lts
 nvm alias default lts/*
@@ -215,8 +216,6 @@ is already done and skips it if so.
 
 `envsetup lang <n>` sets up a single language at any time after init — useful
 when you want to add a language later without re-running the full setup.
-
-After `init` completes, `envsetup` is available from anywhere on the system.
 
 ### What it does NOT do
 

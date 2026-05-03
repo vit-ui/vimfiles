@@ -38,6 +38,10 @@ set autoread
 " Optional: Force built-in 'new' to be vertical
 cabbrev new vnew
 
+" Repo root — derived from the real location of this file so it works
+" regardless of where the repo is cloned.
+let g:vimfiles_dir = fnamemodify(resolve(expand('$MYVIMRC')), ':h')
+
 " ==========================================================
 "	 				PLUGIN MANAGEMENT
 " ==========================================================
@@ -418,7 +422,7 @@ command! Preview if &filetype ==# 'markdown' |
 " Format the current buffer
 command! -nargs=0 Format :call CocActionAsync('format')
 
-command! Shortcuts vsplit +setlocal\ readonly\ nomodifiable ~/vimfiles/shortcuts.txt
+command! Shortcuts execute 'vsplit +setlocal\ readonly\ nomodifiable ' . g:vimfiles_dir . '/shortcuts.txt'
 
 " Reload your config
 command! Source source $MYVIMRC
