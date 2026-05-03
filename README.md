@@ -13,6 +13,9 @@ tooling, and a debugging setup powered by Vimspector.
 | `setupscripts/envsetup`         | Setup script for new machines                  |
 | `setupscripts/lang_go.sh`       | Go language setup                              |
 | `setupscripts/lang_python.sh`   | Python language setup                          |
+| `setupscripts/lang_sh.sh`       | Shell language setup                           |
+| `setupscripts/lang_c.sh`        | C language setup                               |
+| `setupscripts/lang_cpp.sh`      | C++ language setup                             |
 | `setupscripts/lang_markdown.sh` | Markdown language setup                        |
 
 ---
@@ -560,20 +563,20 @@ Using Go as the reference example, the generated `.vimspector.json` looks like:
 
 ```json
 {
-	"configurations": {
-		"delve": {
-			"adapter": "delve",
-			"filetypes": ["go"],
-			"configuration": {
-				"request": "launch",
-				"program": "${program}",
-				"args": [],
-				"cwd": "${workspaceRoot}",
-				"env": {},
-				"mode": "debug"
-			}
-		}
-	}
+    "configurations": {
+        "delve": {
+            "adapter": "delve",
+            "filetypes": ["go"],
+            "configuration": {
+                "request": "launch",
+                "program": "${program}",
+                "args": [],
+                "cwd": "${workspaceRoot}",
+                "env": {},
+                "mode": "debug"
+            }
+        }
+    }
 }
 ```
 

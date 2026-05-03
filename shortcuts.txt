@@ -312,6 +312,9 @@ envsetup init           First-time interactive setup — installs Vim, Node.js,
                         up languages. Safe to re-run (skips completed steps).
 envsetup lang go        Set up Go development environment
 envsetup lang python    Set up Python development environment
+envsetup lang shell     Set up Shell development environment
+envsetup lang c         Set up C development environment
+envsetup lang cpp       Set up C++ development environment
 envsetup lang markdown  Set up Markdown environment
 envsetup info           Open the README with mdless (same as setupdocs)
 envsetup help           Show usage and available commands

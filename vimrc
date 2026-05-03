@@ -405,8 +405,6 @@ autocmd FileType python nmap <leader>r :terminal python3 %<CR>
 
 " ------------------ C Language Config ---------------------
 
-" ------------------ C Language Config ---------------------
-
 autocmd FileType c nmap <leader>r :terminal gcc % -o /tmp/vimrun && /tmp/vimrun<CR>
 
 " ---------------- C++ Language Config --------------------
