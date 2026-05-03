@@ -363,7 +363,7 @@ cmd_info() {
     if command -v mdless > /dev/null 2>&1; then
         mdless "$VIMFILES/README.md"
     else
-        error "mdless is not installed. Install it with: gem install mdless"
+        error "mdless is not installed. Install it with: sudo gem install mdless"
     fi
 }
 
@@ -437,9 +437,9 @@ cmd_init() {
         if [[ "$opt" == "GitHub CLI (gh)" ]]; then
             if gh auth status > /dev/null 2>&1; then
                 ok "GitHub CLI already authenticated"
-                ask_yes_no "Re-authenticate?" && DO_GH_AUTH=1
+                if ask_yes_no "Re-authenticate?"; then DO_GH_AUTH=1; fi
             else
-                ask_yes_no "Set up GitHub CLI authentication now?" && DO_GH_AUTH=1
+                if ask_yes_no "Set up GitHub CLI authentication now?"; then DO_GH_AUTH=1; fi
             fi
             echo ""
             break
@@ -499,7 +499,7 @@ cmd_init() {
         echo ""
     fi
 
-    echo "  Run 'reload' to apply bash changes to this terminal session."
+    echo "  Run 'reload' or 'source ~/.bashrc' to apply bash changes to this terminal session."
     echo "  Run 'envsetup info' to open the README."
     echo ""
 }
