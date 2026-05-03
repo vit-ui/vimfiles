@@ -143,7 +143,6 @@ If you ran `envsetup init`, this is done automatically. If you are doing the
 setup manually:
 
 ```bash
-chmod +x ~/vimfiles/setupscripts/envsetup
 sudo ln -sf ~/vimfiles/setupscripts/envsetup /usr/local/bin/envsetup
 ```
 
@@ -190,6 +189,14 @@ gh auth login
 `envsetup` is a setup script that automates the First-Time Setup steps above.
 It is interactive, idempotent (safe to re-run), and works on apt, dnf, pacman,
 and brew systems.
+
+On first run, call it directly from the repo:
+
+```bash
+~/vimfiles/setupscripts/envsetup init
+```
+
+After that, `envsetup` is available from anywhere on the system.
 
 ### Usage
 
