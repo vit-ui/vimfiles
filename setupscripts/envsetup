@@ -423,7 +423,7 @@ cmd_init() {
 
     # --- Language and optional tool selection ---
     multiselect "Which languages would you like to set up?" \
-        "Go" "Python" "Markdown"
+        "Go" "Python" "Shell" "C" "C++" "Markdown"
     local LANG_SELECTION=("${SELECTED_ITEMS[@]}")
 
     multiselect "Install optional tools?" \
@@ -477,10 +477,12 @@ cmd_init() {
 
     # --- Language setups ---
     # ${lang,,} lowercases the string: Go -> go, Python -> python
-    for lang in "${LANG_SELECTION[@]}"; do
-        ( run_lang "${lang,,}" ) || \
-            FAILED_OPTIONAL+=("${lang} setup — retry with: envsetup lang ${lang,,}")
-    done
+	for lang in "${LANG_SELECTION[@]}"; do
+		lang_key="${lang,,}"
+		[[ "$lang_key" == "c++" ]] && lang_key="cpp"
+		( run_lang "$lang_key" ) || \
+			FAILED_OPTIONAL+=("${lang} setup — retry with: envsetup lang ${lang_key}")
+	done
 
     # Apply bash changes to this shell session
     # shellcheck source=/dev/null

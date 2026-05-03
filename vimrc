@@ -138,7 +138,7 @@ endif
 let g:coc_global_extensions = 
 	\[
 	\	'coc-go', 'coc-json', 'coc-sql', 
-	\	'coc-sh', 'coc-tag',
+	\	'coc-sh', 'coc-tag', 'coc-clangd',
 	\	'coc-markdownlint', 'coc-prettier',
 	\	'@yaegassy/coc-marksman', 'coc-pyright'
 	\]
@@ -405,7 +405,17 @@ autocmd FileType python nmap <leader>r :terminal python3 %<CR>
 
 " ------------------ C Language Config ---------------------
 
-" nothing yet
+" ------------------ C Language Config ---------------------
+
+autocmd FileType c nmap <leader>r :terminal gcc % -o /tmp/vimrun && /tmp/vimrun<CR>
+
+" ---------------- C++ Language Config --------------------
+
+autocmd FileType cpp nmap <leader>r :terminal g++ % -o /tmp/vimrun && /tmp/vimrun<CR>
+
+" ------------------ Shell Language Config -----------------
+
+autocmd FileType sh nmap <leader>r :terminal bash %<CR>
 
 " -------------- Markdown Language Config -------------------
 
@@ -440,6 +450,7 @@ function! InstallDebugger(adapter)
         \ 'delve': ['go'],
         \ 'debugpy': ['python'],
         \ 'CodeLLDB': ['c', 'cpp'],
+		\ 'vscode-bash-debug': ['sh'],
         \ }
 
   if has_key(l:filetypes, a:adapter)

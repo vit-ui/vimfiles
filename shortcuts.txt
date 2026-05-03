@@ -50,6 +50,7 @@ zR                      Open all folds in the file
   CODE EDITING & LSP
 ------------------------------------------------------------
 
+\r                      Run current file/program
 \d                      Jump into the definition of symbol under cursor
 \b                      Jump back from definition
 \o                      Open hover documentation for symbol under cursor

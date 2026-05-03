@@ -68,13 +68,13 @@ Vim and Bash look for `.vimrc` and `.bashrc` in your home directory. Link them f
 stays version-controlled:
 
 ```bash
-ln -sf ~/VIMFILES_PATH/vimrc ~/.vimrc
-ln -sf ~/VIMFILES_PATH/bashrc ~/.bashrc
+ln -sf VIMFILES_PATH/vimrc ~/.vimrc
+ln -sf VIMFILES_PATH/bashrc ~/.bashrc
 source ~/.bashrc
 ```
 
 > These are symbolic links — the actual files stay in this repo. Any edit to `~/.vimrc` is really an edit to
-> `~/VIMFILES_PATH/vimrc`, which you can then commit and push. Run `source ~/.bashrc` after linking to apply
+> `VIMFILES_PATH/vimrc`, which you can then commit and push. Run `source ~/.bashrc` after linking to apply
 > bash changes to the current terminal session without restarting it.
 
 #### 4 — Install vim-plug and plugins
@@ -132,7 +132,7 @@ sudo gem install mdless
 If you ran `envsetup init`, this is done automatically. If you are doing the setup manually:
 
 ```bash
-sudo ln -sf ~/VIMFILES_PATH/setupscripts/envsetup /usr/local/bin/envsetup
+sudo ln -sf VIMFILES_PATH/setupscripts/envsetup /usr/local/bin/envsetup
 ```
 
 ---
@@ -180,7 +180,7 @@ gh auth login
 On first run, call it directly from the repo:
 
 ```bash
-~/VIMFILES_PATH/setupscripts/envsetup init
+VIMFILES_PATH/setupscripts/envsetup init
 ```
 
 After that, `envsetup` is available from anywhere on the system.
@@ -386,6 +386,124 @@ See [Debugging](#debugging-vimspector--dap) for how this works.
 ---
 
 <details>
+<summary><b>Shell</b></summary>
+
+### Requirements
+
+- shellcheck (linter — installed in First-Time Setup step 5, used by coc-sh
+  for diagnostics in `.sh` and `.bashrc` files)
+
+coc-sh handles Markdown automatically after `:PlugInstall` and is listed in
+`g:coc_global_extensions` in `vimrc` — it installs automatically on next Vim open.
+
+> **Note:** Vim detects bash/sh filetype from the shebang line
+> (`#!/usr/bin/env bash`), so files without a `.sh` extension (like `envsetup`)
+> get full syntax highlighting and LSP support automatically.
+
+### Debugger
+
+Bash debugging via Vimspector uses `vscode-bash-debug`. Navigate to your
+project root and run:
+
+```vim
+:InstallDebugger vscode-bash-debug
+```
+
+The generated `.vimspector.json` needs extra fields that the generator does
+not add. After running it, open `.vimspector.json` and add these fields inside
+the `configuration` block:
+
+```json
+"pathBash": "bash",
+"pathBashdb": "~/.vim/plugged/vimspector/gadgets/linux/vscode-bash-debug/bashdb_dir/bashdb",
+"pathCat": "cat",
+"pathMkfifo": "mkfifo",
+"pathPkill": "pkill"
+```
+
+For simple scripts, `set -x` at the top of the file is often enough — it
+prints every command before it runs.
+
+### Shortcuts
+
+| Command/Shortcut | Description            |
+| ---------------- | ---------------------- |
+| `\r`             | Run current file with bash |
+
+</details>
+
+---
+
+<details>
+<summary><b>C</b></summary>
+
+### Requirements
+
+- clangd (language server)
+- clang-format (formatter)
+- gcc (compiler)
+
+coc-clangd is listed in `g:coc_global_extensions` in `vimrc` and installs
+automatically on next Vim open. It connects CoC to clangd for LSP features
+(completion, go-to-definition, diagnostics, hover).
+
+### Debugger
+
+Navigate to your project root and run:
+
+```vim
+:InstallDebugger CodeLLDB
+```
+
+When launching a debug session with `\gc`, Vimspector prompts for `${program}`.
+Enter the path to the compiled binary, e.g. `./myapp`.
+
+Note: you must compile with debug symbols first (`gcc -g`). `\r` compiles
+without them for quick runs — use a `Makefile` or compile manually for
+debugging.
+
+### Shortcuts
+
+| Command/Shortcut | Description                      |
+| ---------------- | -------------------------------- |
+| `\r`             | Compile and run current file with gcc |
+
+</details>
+
+---
+
+<details>
+<summary><b>C++</b></summary>
+
+### Requirements
+
+- clangd (language server — same binary as C, handles both)
+- clang-format (formatter — same binary as C)
+- g++ (compiler)
+
+coc-clangd handles both C and C++ — no separate server or extension needed.
+
+### Debugger
+
+Same as C — navigate to your project root and run:
+
+```vim
+:InstallDebugger CodeLLDB
+```
+
+Enter the path to the compiled binary when prompted.
+
+### Shortcuts
+
+| Command/Shortcut | Description                       |
+| ---------------- | --------------------------------- |
+| `\r`             | Compile and run current file with g++ |
+
+</details>
+
+---
+
+<details>
 <summary><b>Markdown</b></summary>
 
 ### Requirements
@@ -557,7 +675,7 @@ The terminal aliases and Git shortcuts are in `shortcuts.txt`. The custom functi
 Use when syncing your environment from the repo (e.g., on a new machine after initial setup):
 
 ```bash
-cd ~/VIMFILES_PATH
+cd VIMFILES_PATH
 git pull
 source ~/.bashrc
 ```
@@ -592,7 +710,7 @@ git clone https://github.com/YOUR-USERNAME/vimfiles.git VIMFILES_PATH
 **3 — Make your changes, commit, and push to your fork**
 
 ```bash
-cd ~/VIMFILES_PATH
+cd VIMFILES_PATH
 git add .
 git commit -m "describe your change"
 git push
