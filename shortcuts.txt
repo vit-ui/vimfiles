@@ -164,7 +164,7 @@ p                       Preview file without leaving tree
 
 ..                      cd ..
 shortcuts               Open shortcuts.txt in less for reading
-cdv                     cd ~/vimfiles
+cdv                     cd to the vimfiles repo
 evim                    Open .vimrc, .bashrc and shortcuts.txt in splits
 gcp                     git commit && git push in one step
 gs                      git status
