@@ -415,14 +415,24 @@ autocmd FileType cpp nmap <leader>r :terminal g++ % -o /tmp/vimrun && /tmp/vimru
 
 autocmd FileType sh nmap <leader>r :terminal bash %<CR>
 
+augroup ShebangDetect
+    autocmd!
+    autocmd BufWinEnter,BufWritePost,InsertLeave *
+        \ if getline(1) =~# '^#!' |
+        \   filetype detect |
+        \ endif
+augroup END
+
 " -------------- Markdown Language Config -------------------
 
 autocmd FileType markdown nmap <leader>mp :terminal glow %<CR>
+
 " command! Preview if &filetype ==# 'markdown' | terminal glow % 
 " 			\| else | echo "Preview is only available for markdown files" | endif
 command! Preview if &filetype ==# 'markdown' | 
     \ execute "vertical topleft terminal glow " . expand("%") | 
     \ else | echo "Preview is only available for markdown files" | endif
+
 " ==========================================================
 "   				CUSTOM COMMANDS
 " ==========================================================
