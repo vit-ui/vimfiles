@@ -140,7 +140,8 @@ let g:coc_global_extensions =
 	\	'coc-go', 'coc-json', 'coc-sql', 
 	\	'coc-sh', 'coc-tag', 'coc-clangd',
 	\	'coc-markdownlint', 'coc-prettier',
-	\	'@yaegassy/coc-marksman', 'coc-pyright'
+	\	'@yaegassy/coc-marksman', 'coc-pyright',
+	\	'coc-solargraph',
 	\]
 
 " This sets semantic completion as priority and tags as low-priority fallback
@@ -411,6 +412,10 @@ autocmd FileType c nmap <leader>r :terminal gcc % -o /tmp/vimrun && /tmp/vimrun<
 
 autocmd FileType cpp nmap <leader>r :terminal g++ % -o /tmp/vimrun && /tmp/vimrun<CR>
 
+" ------------------ Ruby Language Config -----------------
+
+autocmd FileType ruby nmap <leader>r :terminal ruby %<CR>
+
 " ------------------ Shell Language Config -----------------
 
 autocmd FileType sh nmap <leader>r :terminal bash %<CR>
@@ -459,6 +464,7 @@ function! InstallDebugger(adapter)
         \ 'debugpy': ['python'],
         \ 'CodeLLDB': ['c', 'cpp'],
 		\ 'vscode-bash-debug': ['sh'],
+		\ 'vscode-rdbg': ['ruby'],
         \ }
 
   if has_key(l:filetypes, a:adapter)

@@ -422,8 +422,8 @@ cmd_init() {
     echo ""
 
     # --- Language and optional tool selection ---
-    multiselect "Which languages would you like to set up?" \
-        "Go" "Python" "Shell" "C" "C++" "Markdown"
+	multiselect "Which languages would you like to set up?" \
+		"Go" "Python" "Shell" "C" "C++" "Ruby" "Markdown"
     local LANG_SELECTION=("${SELECTED_ITEMS[@]}")
 
     multiselect "Install optional tools?" \

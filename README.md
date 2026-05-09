@@ -17,6 +17,7 @@ tooling, and a debugging setup powered by Vimspector.
 | `setupscripts/lang_c.sh`        | C language setup                               |
 | `setupscripts/lang_cpp.sh`      | C++ language setup                             |
 | `setupscripts/lang_markdown.sh` | Markdown language setup                        |
+| `setupscripts/lang_ruby.sh`     | Ruby language setup                            |
 
 ---
 
@@ -501,6 +502,40 @@ Enter the path to the compiled binary when prompted.
 | Command/Shortcut | Description                       |
 | ---------------- | --------------------------------- |
 | `\r`             | Compile and run current file with g++ |
+
+</details>
+
+---
+
+<details>
+<summary><b>Ruby</b></summary>
+
+### Requirements
+
+- Ruby (runtime)
+- solargraph (language server)
+- rubocop (formatter — used by solargraph on save)
+- debug gem (provides `rdbg`, the Ruby debugger binary)
+
+coc-solargraph is listed in `g:coc_global_extensions` in `vimrc` and installs
+automatically on next Vim open.
+
+### Debugger
+
+Navigate to your project root and run:
+
+```vim
+:InstallDebugger vscode-rdbg
+```
+
+When launching a debug session with `\gc`, Vimspector prompts for the script
+to debug. Enter the path to your entry point, e.g. `main.rb`.
+
+### Shortcuts
+
+| Command/Shortcut | Description                    |
+| ---------------- | ------------------------------ |
+| `\r`             | Run current file with ruby     |
 
 </details>
 
