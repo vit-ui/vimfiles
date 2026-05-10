@@ -193,7 +193,8 @@ After that, `envsetup` is available from anywhere on the system.
 
 ```bash
 envsetup init              # First-time setup — interactive
-envsetup lang go           # Set up Go (also: python, markdown)
+envsetup reset             # Remove and reinstall everything
+envsetup lang LANG         # Set up LANG
 envsetup info              # Open this README with mdless
 envsetup help              # Show usage
 ```

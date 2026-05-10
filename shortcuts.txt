@@ -310,6 +310,8 @@ rg --hidden "text"      Include hidden files in search (e.g. .vimrc, .bashrc)
 envsetup init           First-time interactive setup — installs Vim, Node.js,
                         system tools, links config files, and optionally sets
                         up languages. Safe to re-run (skips completed steps).
+envsetup reset          Remove installed components and re-run init —
+                        useful to fix broken plugins or CoC extensions
 envsetup lang <LANG>    Set up LANG development environment
 envsetup info           Open the README with mdless (same as setupdocs)
 envsetup help           Show usage and available commands

@@ -341,6 +341,76 @@ run_lang() {
 # COMMANDS
 # -----------------------------------------------------------------------------
 
+cmd_reset() {
+    check_vimfiles
+    detect_pkg_manager
+    echo "envsetup reset — $(date)" > "$LOG"
+
+    banner
+    echo -e "  ${BOLD}Reset — removes installed components and re-runs init.${RESET}"
+    echo ""
+    warn "Vim plugins, CoC extensions, and config links are always removed."
+    warn "System packages are reinstalled, not removed."
+    echo ""
+
+    multiselect "Also reset these?" \
+        "Go binary and tooling" \
+        "System tools (ctags, shellcheck, glow)"
+    local RESET_EXTRA=("${SELECTED_ITEMS[@]}")
+    echo ""
+
+    if ! ask_yes_no "Proceed?" n; then
+        echo ""
+        echo "  Aborted."
+        echo ""
+        exit 0
+    fi
+    echo ""
+
+    echo -e "  ${BOLD}Some steps require sudo — please authenticate:${RESET}"
+    sudo -v || error "sudo authentication failed."
+    echo ""
+
+    echo -e "  ${BOLD}Removing...${RESET}"
+    echo ""
+
+    step "Removing vim-plug"       rm -f  "$HOME/.vim/autoload/plug.vim"
+    step "Removing Vim plugins"    rm -rf "$HOME/.vim/plugged"
+    step "Removing CoC extensions" rm -rf "$HOME/.config/coc/extensions"
+
+    if [[ -L "$HOME/.vimrc" ]]; then
+        step "Removing .vimrc symlink"  rm -f "$HOME/.vimrc"
+    fi
+    if [[ -L "$HOME/.bashrc" ]]; then
+        step "Removing .bashrc symlink" rm -f "$HOME/.bashrc"
+    fi
+    if [[ -L "/usr/local/bin/envsetup" ]]; then
+        step "Removing envsetup from PATH" sudo rm -f "/usr/local/bin/envsetup"
+    fi
+
+    for item in "${RESET_EXTRA[@]}"; do
+        case "$item" in
+            "Go binary and tooling")
+                step "Removing Go binary" sudo rm -rf /usr/local/go
+                step "Removing Go tools"  rm -rf "$HOME/go/bin" "$HOME/go/pkg"
+                ;;
+            "System tools (ctags, shellcheck, glow)")
+                step "Reinstalling ctags"     sudo apt-get install --reinstall -y universal-ctags
+                step "Reinstalling shellcheck" sudo apt-get install --reinstall -y shellcheck
+                if command -v glow > /dev/null 2>&1; then
+                    step "Reinstalling glow" sudo apt-get install --reinstall -y glow
+                fi
+                ;;
+        esac
+    done
+
+    echo ""
+    echo -e "${GREEN}${BOLD}Done removing.${RESET} Re-running init..."
+    echo ""
+
+    cmd_init
+}
+
 cmd_help() {
     echo ""
     echo -e "${BOLD}envsetup${RESET} — vimfiles dev environment setup"
@@ -349,6 +419,7 @@ cmd_help() {
     echo ""
     echo "  Commands:"
     echo "    init              First-time setup (interactive, safe to re-run)"
+	echo "    reset             Remove installed components and re-run init"
     echo "    lang <name>       Set up a language: go, python, markdown"
     echo "    info              Open the README with mdless"
     echo "    help              Show this help"
@@ -517,6 +588,7 @@ fi
 
 case "$1" in
     init) cmd_init ;;
+	reset) cmd_reset ;;
     lang) cmd_lang "${2:-}" ;;
     info) cmd_info ;;
     help) cmd_help ;;
