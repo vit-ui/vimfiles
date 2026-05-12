@@ -4,6 +4,36 @@
 # Sourced by envsetup. Requires: ok, warn, step, soft_step, pkg_install, BOLD
 # =============================================================================
 
+if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
+    echo ""
+    echo -e "  ${BOLD}Removing Ruby tools...${RESET}"
+
+    if command -v solargraph > /dev/null 2>&1; then
+        soft_step "Uninstalling solargraph" sudo gem uninstall -ax solargraph
+    else
+        ok "solargraph not installed — skipping"
+    fi
+
+    if command -v rubocop > /dev/null 2>&1; then
+        soft_step "Uninstalling rubocop" sudo gem uninstall -ax rubocop
+    else
+        ok "rubocop not installed — skipping"
+    fi
+
+    if command -v rdbg > /dev/null 2>&1; then
+        soft_step "Uninstalling debug gem" sudo gem uninstall -ax debug
+    else
+        ok "debug gem not installed — skipping"
+    fi
+
+    # ruby-full is kept — also used by mdless and possibly other tools
+    ok "ruby-full kept — also used by mdless"
+
+    return 0
+fi
+
+# =============================================================================
+
 echo ""
 echo -e "  ${BOLD}Setting up Ruby...${RESET}"
 

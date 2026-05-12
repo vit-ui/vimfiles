@@ -4,6 +4,21 @@
 # Sourced by envsetup. Requires: ok, warn, step, pkg_install, BOLD
 # =============================================================================
 
+if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
+    echo ""
+    echo -e "  ${BOLD}Removing Shell tools...${RESET}"
+
+    if command -v shellcheck > /dev/null 2>&1; then
+        step "Removing shellcheck" pkg_remove shellcheck
+    else
+        ok "shellcheck not installed — skipping"
+    fi
+
+    return 0
+fi
+
+# =============================================================================
+
 echo ""
 echo -e "  ${BOLD}Setting up Shell...${RESET}"
 
@@ -20,9 +35,9 @@ fi
 ok "coc-sh installs automatically on next Vim open"
 
 # --- Filetype note ---
-# Vim detects bash/sh filetype from the shebang line (#!/usr/bin/env bash),
-# so files without a .sh extension (e.g. envsetup) get full syntax
-# highlighting and LSP support as long as the shebang is present.
+# Filetype detection for extensionless scripts (e.g. envsetup) is handled
+# by the ShebangDetect augroup in vimrc, which runs filetype detect on
+# BufWinEnter, BufWritePost, and InsertLeave for any file with a shebang.
 
 # --- Debugger note ---
 # Bash debugging via Vimspector uses vscode-bash-debug. Run:

@@ -4,6 +4,35 @@
 # Sourced by envsetup. Requires: ok, warn, step, pkg_install, BOLD
 # =============================================================================
 
+if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
+    echo ""
+    echo -e "  ${BOLD}Removing C++ tools...${RESET}"
+
+    # clangd and clang-format are shared with C — use soft_step since
+    # they may already be removed if C was also uninstalled.
+    if command -v clangd > /dev/null 2>&1; then
+        soft_step "Removing clangd" pkg_remove clangd
+    else
+        ok "clangd not installed — skipping"
+    fi
+
+    if command -v clang-format > /dev/null 2>&1; then
+        soft_step "Removing clang-format" pkg_remove clang-format
+    else
+        ok "clang-format not installed — skipping"
+    fi
+
+    if command -v g++ > /dev/null 2>&1; then
+        step "Removing g++" pkg_remove g++
+    else
+        ok "g++ not installed — skipping"
+    fi
+
+    return 0
+fi
+
+# =============================================================================
+
 echo ""
 echo -e "  ${BOLD}Setting up C++...${RESET}"
 

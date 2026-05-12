@@ -4,6 +4,30 @@
 # Sourced by envsetup. Requires: ok, warn, step, pkg_install, BOLD
 # =============================================================================
 
+if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
+    echo ""
+    echo -e "  ${BOLD}Removing C tools...${RESET}"
+
+    if command -v clangd > /dev/null 2>&1; then
+        soft_step "Removing clangd" pkg_remove clangd
+    else
+        ok "clangd not installed — skipping"
+    fi
+
+    if command -v clang-format > /dev/null 2>&1; then
+        soft_step "Removing clang-format" pkg_remove clang-format
+    else
+        ok "clang-format not installed — skipping"
+    fi
+
+    # gcc is a common system dependency — not removed
+    ok "gcc is a system dependency — not removed"
+
+    return 0
+fi
+
+# =============================================================================
+
 echo ""
 echo -e "  ${BOLD}Setting up C...${RESET}"
 

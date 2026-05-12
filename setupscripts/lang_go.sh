@@ -4,6 +4,27 @@
 # Sourced by envsetup. Requires: ok, warn, step, PKG, VIMFILES, BOLD, RESET
 # =============================================================================
 
+if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
+    echo ""
+    echo -e "  ${BOLD}Removing Go...${RESET}"
+
+    if [[ -d /usr/local/go ]]; then
+        step "Removing Go binary" sudo rm -rf /usr/local/go
+    else
+        ok "Go binary not found — skipping"
+    fi
+
+    if [[ -d "$HOME/go" ]]; then
+        step "Removing Go workspace" rm -rf "$HOME/go"
+    else
+        ok "Go workspace not found — skipping"
+    fi
+
+    return 0
+fi
+
+# =============================================================================
+
 echo ""
 echo -e "  ${BOLD}Setting up Go...${RESET}"
 

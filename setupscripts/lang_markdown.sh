@@ -4,6 +4,32 @@
 # Sourced by envsetup. Requires: ok, warn, step, soft_step, pkg_install, PKG, BOLD
 # =============================================================================
 
+if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
+    echo ""
+    echo -e "  ${BOLD}Removing Markdown tools...${RESET}"
+
+    if command -v mdless > /dev/null 2>&1; then
+        soft_step "Uninstalling mdless" sudo gem uninstall -ax mdless
+    else
+        ok "mdless not installed — skipping"
+    fi
+
+    if command -v glow > /dev/null 2>&1; then
+        step "Removing glow" pkg_remove glow
+        [[ "$PKG" == "apt" ]] && \
+            step "Removing glow apt repo" bash -c "
+                sudo rm -f /etc/apt/sources.list.d/charm.list
+                sudo rm -f /etc/apt/keyrings/charm.gpg
+            "
+    else
+        ok "glow not installed — skipping"
+    fi
+
+    return 0
+fi
+
+# =============================================================================
+
 echo ""
 echo -e "  ${BOLD}Setting up Markdown...${RESET}"
 

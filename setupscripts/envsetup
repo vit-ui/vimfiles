@@ -341,25 +341,23 @@ run_lang() {
 # COMMANDS
 # -----------------------------------------------------------------------------
 
-cmd_reset() {
+cmd_remove() {
     check_vimfiles
     detect_pkg_manager
-    echo "envsetup reset — $(date)" > "$LOG"
+    echo "envsetup remove — $(date)" > "$LOG"
 
     banner
-    echo -e "  ${BOLD}Reset — removes installed components and re-runs init.${RESET}"
+    echo -e "  ${BOLD}Remove — uninstalls everything set up by envsetup.${RESET}"
     echo ""
-    warn "Vim plugins, CoC extensions, and config links are always removed."
-    warn "System packages are reinstalled, not removed."
-    echo ""
-
-    multiselect "Also reset these?" \
-        "Go binary and tooling" \
-        "System tools (ctags, shellcheck, glow)"
-    local RESET_EXTRA=("${SELECTED_ITEMS[@]}")
+    warn "Removes Vim, plugins, CoC, Node.js, language tools, and config links."
     echo ""
 
-    if ! ask_yes_no "Proceed?" n; then
+    multiselect "Which languages to uninstall?" \
+        "Go" "Python" "Shell" "C" "C++" "Ruby" "Markdown"
+    local LANG_REMOVAL=("${SELECTED_ITEMS[@]}")
+    echo ""
+
+    if ! ask_yes_no "This cannot be undone. Proceed?" n; then
         echo ""
         echo "  Aborted."
         echo ""
@@ -374,41 +372,102 @@ cmd_reset() {
     echo -e "  ${BOLD}Removing...${RESET}"
     echo ""
 
+    # --- Vim plugins and plugin manager ---
     step "Removing vim-plug"       rm -f  "$HOME/.vim/autoload/plug.vim"
-    step "Removing Vim plugins"    rm -rf "$HOME/.vim/plugged"
-    step "Removing CoC extensions" rm -rf "$HOME/.config/coc/extensions"
+    step "Removing Vim plugins"    sudo rm -rf "$HOME/.vim/plugged"
+    step "Removing CoC extensions" sudo rm -rf "$HOME/.config/coc/extensions"
 
+    # --- Global gitignore (created by vimrc on first Vim open via install_vim_plugins) ---
+    if [[ -f "$HOME/.gitignore_global" ]]; then
+        step "Removing global gitignore"       rm -f "$HOME/.gitignore_global"
+        soft_step "Unsetting git excludesfile" \
+            git config --global --unset core.excludesfile
+    fi
+
+    # --- Vim itself ---
+    if command -v vim > /dev/null 2>&1; then
+        step "Removing Vim" pkg_remove vim
+        [[ "$PKG" == "apt" ]] && \
+            sudo add-apt-repository --remove ppa:jonathonf/vim -y >> "$LOG" 2>&1 || true
+    else
+        ok "Vim not installed — skipping"
+    fi
+
+    # --- Config symlinks ---
     if [[ -L "$HOME/.vimrc" ]]; then
         step "Removing .vimrc symlink"  rm -f "$HOME/.vimrc"
     fi
     if [[ -L "$HOME/.bashrc" ]]; then
         step "Removing .bashrc symlink" rm -f "$HOME/.bashrc"
     fi
-    if [[ -L "/usr/local/bin/envsetup" ]]; then
-        step "Removing envsetup from PATH" sudo rm -f "/usr/local/bin/envsetup"
+
+    # --- Node.js / nvm ---
+    if [[ -d "$HOME/.nvm" ]]; then
+        step "Removing nvm and Node.js" rm -rf "$HOME/.nvm"
+    else
+        ok "nvm not installed — skipping"
     fi
 
-    for item in "${RESET_EXTRA[@]}"; do
-        case "$item" in
-            "Go binary and tooling")
-                step "Removing Go binary" sudo rm -rf /usr/local/go
-                step "Removing Go tools"  rm -rf "$HOME/go/bin" "$HOME/go/pkg"
-                ;;
-            "System tools (ctags, shellcheck, glow)")
-                step "Reinstalling ctags"     sudo apt-get install --reinstall -y universal-ctags
-                step "Reinstalling shellcheck" sudo apt-get install --reinstall -y shellcheck
-                if command -v glow > /dev/null 2>&1; then
-                    step "Reinstalling glow" sudo apt-get install --reinstall -y glow
-                fi
-                ;;
-        esac
+    # --- System tools (always installed by install_system_tools in init) ---
+    if command -v ctags > /dev/null 2>&1; then
+        step "Removing ctags" pkg_remove universal-ctags
+    else
+        ok "ctags not installed — skipping"
+    fi
+
+    if command -v shellcheck > /dev/null 2>&1; then
+        step "Removing shellcheck" pkg_remove shellcheck
+    else
+        ok "shellcheck not installed — skipping"
+    fi
+
+    if command -v glow > /dev/null 2>&1; then
+        step "Removing glow" pkg_remove glow
+        [[ "$PKG" == "apt" ]] && \
+            step "Removing glow apt repo" bash -c "
+                sudo rm -f /etc/apt/sources.list.d/charm.list
+                sudo rm -f /etc/apt/keyrings/charm.gpg
+            "
+    else
+        ok "glow not installed — skipping"
+    fi
+
+    if command -v mdless > /dev/null 2>&1; then
+        soft_step "Removing mdless" sudo gem uninstall -ax mdless
+    else
+        ok "mdless not installed — skipping"
+    fi
+
+    # --- Optional tools (installed by init if selected) ---
+    if command -v rg > /dev/null 2>&1; then
+        soft_step "Removing ripgrep" pkg_remove ripgrep
+    fi
+    if command -v gh > /dev/null 2>&1; then
+        soft_step "Removing GitHub CLI" pkg_remove gh
+    fi
+
+    # --- Languages ---
+    for lang in "${LANG_REMOVAL[@]}"; do
+        local lang_key="${lang,,}"
+        [[ "$lang_key" == "c++" ]] && lang_key="cpp"
+        uninstall_lang "$lang_key"
     done
 
     echo ""
-    echo -e "${GREEN}${BOLD}Done removing.${RESET} Re-running init..."
+    echo -e "${GREEN}${BOLD}Everything removed.${RESET}"
     echo ""
 
-    cmd_init
+    if [[ ${#FAILED_OPTIONAL[@]} -gt 0 ]]; then
+        echo -e "  ${YELLOW}The following steps failed:${RESET}"
+        for item in "${FAILED_OPTIONAL[@]}"; do
+            echo -e "    ${YELLOW}⚠${RESET}  ${item}"
+        done
+        echo "  See $LOG for details."
+        echo ""
+    fi
+
+    echo -e "  To reinstall, run: ${BOLD}envsetup init${RESET}"
+    echo ""
 }
 
 cmd_help() {

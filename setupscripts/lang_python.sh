@@ -4,6 +4,30 @@
 # Sourced by envsetup. Requires: ok, warn, step, pkg_install, BOLD
 # =============================================================================
 
+if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
+    echo ""
+    echo -e "  ${BOLD}Removing Python tools...${RESET}"
+
+    if command -v black > /dev/null 2>&1; then
+        soft_step "Uninstalling black" pipx uninstall black
+    else
+        ok "black not installed — skipping"
+    fi
+
+    if command -v pipx > /dev/null 2>&1; then
+        step "Removing pipx" pkg_remove pipx
+    else
+        ok "pipx not installed — skipping"
+    fi
+
+    # python3 and pip are system packages — not removed
+    ok "python3 and pip are system packages — not removed"
+
+    return 0
+fi
+
+# =============================================================================
+
 echo ""
 echo -e "  ${BOLD}Setting up Python...${RESET}"
 
