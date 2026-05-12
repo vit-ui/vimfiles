@@ -4,6 +4,7 @@
 #
 # Usage:
 #   envsetup init            First-time setup (interactive, idempotent)
+#   envsetup remove          Remove everything installed by envsetup
 #   envsetup lang <name>     Set up a language: go, python, markdown
 #   envsetup info            Open the README with mdless
 #   envsetup help            Show this help
@@ -195,6 +196,15 @@ pkg_install() {
     esac
 }
 
+pkg_remove() {
+    case "$PKG" in
+        apt)    sudo apt-get remove -y "$1" ;;
+        dnf)    sudo dnf remove -y "$1" ;;
+        pacman) sudo pacman -R --noconfirm "$1" ;;
+        brew)   brew uninstall "$1" ;;
+    esac
+}
+
 # -----------------------------------------------------------------------------
 # INSTALL STEPS
 # -----------------------------------------------------------------------------
@@ -335,6 +345,16 @@ run_lang() {
     [[ -f "$file" ]] || error "No setup file found for language '${lang}' (looked for ${file})"
     # shellcheck source=/dev/null
     source "$file"
+}
+
+uninstall_lang() {
+    local lang="$1"
+    local file="$SCRIPT_DIR/lang_${lang}.sh"
+    [[ -f "$file" ]] || return 0
+    LANG_ACTION="uninstall"
+    # shellcheck source=/dev/null
+    source "$file"
+    unset LANG_ACTION
 }
 
 # -----------------------------------------------------------------------------
@@ -478,9 +498,9 @@ cmd_help() {
     echo ""
     echo "  Commands:"
     echo "    init              First-time setup (interactive, safe to re-run)"
-	echo "    reset             Remove installed components and re-run init"
-    echo "    lang <name>       Set up a language: go, python, markdown"
-    echo "    info              Open the README with mdless"
+	echo "    remove            Remove everything installed by envsetup"
+    echo "    lang <name>       Set up a language: go, python, sh, c, cpp, ruby, markdown" 
+	echo "    info              Open the README with mdless"
     echo "    help              Show this help"
     echo ""
     echo "  Note: debugger setup is per-project."
@@ -647,8 +667,8 @@ fi
 
 case "$1" in
     init) cmd_init ;;
-	reset) cmd_reset ;;
-    lang) cmd_lang "${2:-}" ;;
+    remove) cmd_remove ;;
+	lang) cmd_lang "${2:-}" ;;
     info) cmd_info ;;
     help) cmd_help ;;
     *)
