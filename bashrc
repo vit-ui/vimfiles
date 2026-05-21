@@ -217,3 +217,6 @@ alias setupdocs='mdless "$VIMFILES/README.md"'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"

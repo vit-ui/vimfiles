@@ -84,7 +84,7 @@ filetype plugin indent on
 
 set termguicolors
 set background=dark
-colorscheme molokai
+silent! colorscheme molokai
 
 set tabstop=4
 

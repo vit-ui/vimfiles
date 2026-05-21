@@ -218,9 +218,17 @@ install_vim() {
     fi
     case "$PKG" in
         apt)
-            step "Adding Vim PPA" sudo add-apt-repository -y ppa:jonathonf/vim
-            step "Updating apt"   sudo apt-get update -q
-            step "Installing Vim" sudo apt-get install -y vim
+            local ubuntu_major
+            ubuntu_major=$(lsb_release -rs 2>/dev/null | cut -d. -f1)
+            if [[ "${ubuntu_major:-0}" -ge 24 ]]; then
+                # Noble (24.04)+ ships Vim 9.x in default repos — PPA not needed
+                step "Updating apt"   sudo apt-get update -q
+                step "Installing Vim" sudo apt-get install -y vim
+            else
+                step "Adding Vim PPA" sudo add-apt-repository -y ppa:jonathonf/vim
+                step "Updating apt"   sudo apt-get update -q
+                step "Installing Vim" sudo apt-get install -y vim
+            fi
             ;;
         dnf|pacman|brew) step "Installing Vim" pkg_install vim ;;
     esac
@@ -406,11 +414,13 @@ cmd_remove() {
 
     # --- Vim itself ---
     if command -v vim > /dev/null 2>&1; then
-        step "Removing Vim" pkg_remove vim
-        [[ "$PKG" == "apt" ]] && \
-            sudo add-apt-repository --remove ppa:jonathonf/vim -y >> "$LOG" 2>&1 || true
+       	step "Removing Vim" pkg_remove vim
+ 	local ubuntu_major
+    	ubuntu_major=$(lsb_release -rs 2>/dev/null | cut -d. -f1)
+    	[[ "$PKG" == "apt" && "${ubuntu_major:-0}" -lt 24 ]] && \
+       	    sudo add-apt-repository --remove ppa:jonathonf/vim -y >> "$LOG" 2>&1 || true
     else
-        ok "Vim not installed — skipping"
+       ok "Vim not installed — skipping"
     fi
 
     # --- Config symlinks ---

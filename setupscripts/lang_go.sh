@@ -9,13 +9,13 @@ if [[ "${LANG_ACTION:-install}" == "uninstall" ]]; then
     echo -e "  ${BOLD}Removing Go...${RESET}"
 
     if [[ -d /usr/local/go ]]; then
-        step "Removing Go binary" sudo rm -rf /usr/local/go
+	step "Removing Go binary" sudo rm -rf /usr/local/go
     else
         ok "Go binary not found — skipping"
     fi
 
     if [[ -d "$HOME/go" ]]; then
-        step "Removing Go workspace" rm -rf "$HOME/go"
+	step "Removing Go workspace" sudo rm -rf "$HOME/go"
     else
         ok "Go workspace not found — skipping"
     fi
@@ -33,8 +33,7 @@ if command -v go > /dev/null 2>&1; then
     ok "Go $(go version | awk '{print $3}') already installed — skipping"
 else
     local go_ver arch os tarball
-    go_ver=$(curl -s "https://go.dev/dl/?mode=json" \
-        | grep -o '"version":"go[^"]*"' | head -1 | cut -d'"' -f4)
+	go_ver=$(curl -sL "https://go.dev/VERSION?m=text" | head -1)
     arch=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
     os=$(uname -s | tr '[:upper:]' '[:lower:]')
     tarball="${go_ver}.${os}-${arch}.tar.gz"
