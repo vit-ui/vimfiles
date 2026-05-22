@@ -236,7 +236,13 @@ install_vim() {
 
 install_node() {
     if command -v node > /dev/null 2>&1; then
-        ok "Node.js $(node --version) already installed — skipping"; return
+        local node_major
+        node_major=$(node --version | cut -d. -f1 | tr -d 'v')
+        if [[ "$node_major" -ge 20 ]]; then
+            ok "Node.js $(node --version) already installed — skipping"
+            return
+        fi
+        warn "Node.js $(node --version) is below v20 — upgrading to LTS..."
     fi
     local nvm_ver
     nvm_ver=$(curl -sL https://api.github.com/repos/nvm-sh/nvm/releases/latest \
@@ -303,12 +309,32 @@ configure_git() {
     step "Setting pull.rebase"    git config --global pull.rebase true
 }
 
-set_remote_https() {
+set_remote_protocol() {
+    local protocol="https"
+    if command -v gh > /dev/null 2>&1; then
+        local gh_protocol
+        gh_protocol=$(gh config get git_protocol -h github.com 2>/dev/null || echo "https")
+        [[ -n "$gh_protocol" ]] && protocol="$gh_protocol"
+    fi
+
     local current
     current=$(git -C "$VIMFILES" remote get-url origin 2>/dev/null || true)
-    if [[ "$current" == https://* ]]; then ok "Remote already HTTPS — skipping"; return; fi
-    step "Setting remote to HTTPS" \
-        git -C "$VIMFILES" remote set-url origin https://github.com/vit-ui/vimfiles.git
+
+    if [[ "$protocol" == "ssh" ]]; then
+        if [[ "$current" == git@* ]]; then
+            ok "Remote already SSH — skipping"; return
+        fi
+        local ssh_url
+        ssh_url=$(echo "$current" | sed 's|https://github.com/|git@github.com:|')
+        step "Setting remote to SSH" git -C "$VIMFILES" remote set-url origin "$ssh_url"
+    else
+        if [[ "$current" == https://* ]]; then
+            ok "Remote already HTTPS — skipping"; return
+        fi
+        local https_url
+        https_url=$(echo "$current" | sed 's|git@github.com:|https://github.com/|')
+        step "Setting remote to HTTPS" git -C "$VIMFILES" remote set-url origin "$https_url"
+    fi
 }
 
 install_vim_plug() {
@@ -535,6 +561,10 @@ cmd_lang() {
         echo ""
         exit 1
     fi
+	# Normalize aliases
+    [[ "$lang" == "shell" ]] && lang="sh"
+    [[ "$lang" == "c++" ]]   && lang="cpp"
+
     check_vimfiles
     detect_pkg_manager
     echo "envsetup lang $lang — $(date)" > "$LOG"
@@ -615,7 +645,6 @@ cmd_init() {
     install_system_tools
     link_config_files
     configure_git "$GIT_NAME" "$GIT_EMAIL"
-    set_remote_https
     install_vim_plug
     install_vim_plugins
     install_envsetup_to_path
@@ -634,6 +663,8 @@ cmd_init() {
                 ;;
         esac
     done
+
+	set_remote_protocol
 
     # --- Language setups ---
     # ${lang,,} lowercases the string: Go -> go, Python -> python
