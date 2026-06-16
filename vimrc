@@ -38,6 +38,10 @@ set autoread
 " Optional: Force built-in 'new' to be vertical
 cabbrev new vnew
 
+if executable('clip.exe')
+    vnoremap <C-c> y:call system("clip.exe", @")<CR>
+endif
+
 " Repo root — derived from the real location of this file so it works
 " regardless of where the repo is cloned.
 let g:vimfiles_dir = fnamemodify(resolve(expand('$MYVIMRC')), ':h')
